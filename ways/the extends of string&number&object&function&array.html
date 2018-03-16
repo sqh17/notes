@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>字符串&数组&对象&函数&数值的扩展 the extends of string&number&object&function&array</title>
+</head>
+<body>
+
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+    <div>4</div>
+    <script>
+        // 字符串方法:
+        // str.includes(str1, n)   返回布尔值，表示是否找到了参数字符串        
+        //     params： 第一个参数str1  必选， 要匹配的字符 
+        //              第二个参数n    可选  表示开始搜索的索引位置 第n个开始搜索到结束 
+        // let str = 'hello world'
+        // let str1 = 'hello'
+        // console.log(str.includes(str1));     // true
+        // console.log(str.includes(str1, 4))  // false
+
+        // str.startsWith(str1, n)  返回布尔值，表示参数字符串是否在原字符串的头部
+        //     params： 和includes一样 
+        // let str = 'hello world'
+        // let str1 = 'hello'
+        // console.log(str.startsWith(str1));   // true
+        // console.log(str.startsWith(str1, 0))  // true
+
+        // str.endsWidth(str1, n)  返回布尔值，表示参数字符串是否在原字符串的尾部。
+        //     params： 第一个参数str1  必选， 要匹配的字符 
+        //              第二个参数n    可选  表示开始搜索的索引位置 从第一个搜索到第n个结束
+        // let str = 'hello world'
+        // let str1 = 'hello'
+        // console.log(str.endsWith(str1));   // false
+        // console.log(str.endsWith(str1, 6))   // false
+
+        // str.repeat(n)  返回一个新字符串，表示将原字符串重复n次
+        // let str = 'peter';
+        // str1 = str.repeat(2);
+        // console.log(str1)     // peterpeter
+
+        // ps: n如果是小数，则会取整，不是四舍五入 
+        //        如果参数是 0 到-1 之间的小数，则等同于 0，这是因为会先进行取整运算。
+        //                 0 到-1 之间的小数，取整以后等于-0，repeat视同为 0
+        //        n如果是负数，或Infinity，会报错， 
+        //        n如果是NaN ，则返回 空
+        //        n如果是字符串类型的，解析器会强制转换成number类型，若是非数字的字符串，则返回 空。
+        // let str = 'peter';
+        // str1 = str.repeat(1.1);
+        // console.log(str1)     // peter
+        
+        // console.log('peter'.repeat(-2));   // Uncaught RangeError: Invalid count value
+        // console.log('peter'.repeat(Infinity));   // Uncaught RangeError: Invalid count value
+        // console.log('peter'.repeat('abc'));    //     (为空，string类型)
+        // console.log('peter'.repeat('3'));      //    peterpeterpeter
+        // console.log('peter'.repeat(NaN))       //     (为空,string类型)
+        
+        // str.padStart(len, str1)   若某个字符串不够指定长度，用str1补全头部
+        // str.padEnd(len, str1)   若某个字符串不够指定长度，用str1补全尾部
+            // params: len: 可选 最小长度
+            //         str1: 必选 补全的字符串
+        // 省略第二个参数，默认使用空格补全长度 
+        // let str = 'hello'
+        // console.log(str.padStart('peter '))    //  hello
+        // console.log(str.padEnd(' peter'))      //  hello
+        
+        // 若原字符串的长度，>=指定的最小长度，则返回原字符串
+        // 若两者的长度之和超过了指定的最小长度，则会截去超出位数的补全字符串
+        // let str = 'hello'
+        // console.log(str.padStart(5, 'peter '))  // hello
+        // console.log(str.padEnd(8,' peter'))    // hello pe
+        // console.log( '1'.padStart(10, '0') )    // "0000000001"
+        // console.log( '12'.padStart(10, '0') )   // "0000000012"
+        // console.log( '123456'.padStart(10, '0') )   // "0000123456"
+        // console.log( '13'.padStart(10, '2018-01-00') )   // "2018-01-12"
+        // console.log( '18-03-13'.padStart(10, '2018-00-00') )  // 2018-03-13 
+
+        // 数值的扩展
+        // 前缀 0b 或者 0B 代表二进制 
+        // console.log( 0b1011 === 11 )    // true
+        // 前缀 0o 或者 0O 代表八进制
+        // console.log( 0o555 === 365 )    // true
+        // 八进制，二进制，十二进制，六进制转成十进制 Number()
+        // console.log( Number(0b1011) )    // 11
+        // console.log( Number(0o555) )    // 365
+
+        // Number.isFinite()   判断数值是否是有限的，返回是布尔值
+        // ps: 只要判断的数值不是number类型的，一律为false
+        // console.log( Number.isFinite(22222) )   //true
+        // console.log( Number.isFinite(NaN) )    // false
+        // console.log( Number.isFinite('abc') )  // false
+        
+        // Number.isNaN()   判断数值是否为NaN ，返回值是布尔值
+        // ps: 只要值不是NaN，一律为false
+        // console.log( Number.isNaN(NaN) )   // true
+        // console.log( Number.isNaN(123) )   // false
+        // console.log( Number.isNaN('abc') )  // false
+        
+        // Number.parseInt()   // 将数值转化为整型
+        // Number.parseFloat() // 将数值转化为浮点型
+        // 功能和parseInt(),parseFloat()一样，优点是减少了全局方法。
+        // console.log(Number.parseInt(12.34))    // 12
+        // console.log(Number.parseFloat('12.345af'))   // 12.345
+        
+        // Number.isInteger()  判断数值是不是整数 返回值是布尔值
+        // console.log(Number.isInteger(20.2))   // false
+        // console.log(Number.isInteger(23))    //true
+
+        // Number.EPSILON   常量  代表 1 与大于 1 的最小浮点数之间的差
+        // Number.EPSILON === Math.pow(2, -52)
+
+        // Math对象
+        // Math.trunc()   去除一个数的小数部分，返回整数部分 不四舍五入
+        // ps:对于一个不是数字的值，返回结果为NaN
+        // console.log(Math.trunc(12.34))    // 12
+        
+        // Math.sign()    用来判断一个数到底是正数、负数、还是零 ，有5种参数
+        //     参数为正数，返回+1；
+        //     参数为负数，返回-1；
+        //     参数为 0，返回0；
+        //     参数为-0，返回-0;
+        //     其他值，返回NaN
+        // ps: 常见的false，null，会返回 0
+        //     NaN ,undefined,非数字的字符串类型(包括空)，返回是NaN
+        //     true 返回为 +1
+        // console.log(Math.sign(-5)) // -1
+        // console.log(Math.sign(5)) // +1
+        // console.log(Math.sign(0)) // 0
+        // console.log(Math.sign(NaN)) // NaN
+        // console.log(Math.sign(false))   // 0
+        // console.log(Math.sign(null))    // 0
+        // console.log(Math.sign())       // NaN
+        // console.log(Math.sign('abc'))  // NaN
+        // console.log(Math.sign('123'))  // 1
+        // console.log(Math.sign(true))   // 1
+        // 兼容性处理
+        // Math.sign = Math.sign || function(x) {
+        //     x = +x; // convert to a number
+        //     if (x === 0 || isNaN(x)) {
+        //         return x;
+        //     }
+        //     return x > 0 ? 1 : -1;
+        // };
+        
+        // Math.cbrt() 计算一个数的立方根,返回一个计算后的值
+        // ps: 非数值类型的返回NaN,
+        // console.log(Math.cbrt(8))    // 2
+        // console.log(Math.cbrt(true))  // 1
+        // console.log(Math.cbrt('abc'))  // NaN
+        // console.log(Math.cbrt(false))  // 0
+        // console.log(Math.cbrt(NaN))  // NaN
+        // console.log(Math.cbrt(undefined))  //NaN
+        // console.log(Math.cbrt('8'));  // 2
+        
+        // Math.log10(x)   返回以 10 为底的x的对数
+        // console.log(Math.log10(10))    // 1
+        // console.log(Math.log10(2))    // 0.3010299956639812
+
+        // Math.log2(x)    返回以 2 为底的x的对数
+        // console.log(Math.log2(2))    // 1
+        // console.log(Math.log2(10))    // 3.321928094887362
+
+        // 指数运算  **
+        // console.log(2 ** 3)   // 8
+        // console.log(2 ** 4)   // 16
+
+
+        // 函数的扩展
+        // rest参数    ...变量名
+        // 在函数的参数中，最后一个参数用...变量名，代表把这之后的所有参数放到数组中。简化操作。
+        // function fn(a,...arg){
+        //     console.log(arg)
+        // }
+        // fn(1,2,3,4)     // 这样代表 a传的参数是1， ...arg传的参数是[2,3,4]
+        // rest参数和argument的区别：
+        //     1 剩余参数只包含那些没有对应形参的实参，而 arguments 对象包含了传给函数的所有实参。
+        //     2 arguments对象不是一个真正的数组，是个伪数组。而剩余参数是真正的Array实例，可以调用数组的方法。
+        //     3 arguments对象还有一些附加的属性
+        // ps: 将伪数组转化成数组：Array.prototype.slice.call(arguments)
+        //     rest参数只能作为函数的最后一个参数，否则会报错。
+        // function fn(a, ...arg, b){
+        //     console.log(arg)
+        // }
+        // fn(1,2,3,4)   // Uncaught SyntaxError: Rest parameter must be last formal parameter
+        // 函数的参数的自身length不包含rest参数,即rest本身的自带length为 0
+        // console.log((function(a) {}).length);     // 1
+        // console.log((function(...arg) {}).length);      // 0
+        // console.log((function(a,b,...arg){}).length)    // 2
+
+        // 箭头函数   =>
+        // 省略了function，简化了操作。
+        // let fn = (a, b) => a + b
+        // console.log(fn(1,2))
+        // 等价于
+        // let fn = function(a, b){ 
+        //     return a + b
+        // }
+        // console.log(fn(1,2))
+        // 圆括号 () 代表参数(没有参数或者多个参数), 
+        // 大括号 {} 代表执行代码块(多于两条语句时，并return。如果只有一条语句，则不加{})
+        // ps:箭头函数返回一个对象，必须在对象外面加上括号，否则会报错,因为大括号{}被解析成代码执行块
+        // let obj = (id)=>{
+        //     id:1, 
+        //     name: 'peter'
+        // }
+        // console.log(obj())    // Uncaught SyntaxError:
+        // let obj = (id)=>({
+        //     id:1, 
+        //     name: 'peter'
+        // })
+        // console.log(obj())    // {id: 1, name: "peter"}
+
+        // let a= [1,2,3,4].map(v=>v * v)
+        // console.log(a)     // [1, 4, 9, 16]
+        // let b = [1,2,3,4,5].reduce((pre,cur) => pre + cur)
+        // console.log(b)
+        // var simple = a => a > 15 ? 15 : a;
+        // console.log(simple(16)); // 15
+        // 箭头函数的注意点:
+        //     1 箭头函数没有this值，箭头函数内的this值继承自外围作用域
+            // let fn = (a, b) => {
+            //     console.log(this)
+            // }
+            // console.log(fn(1,2))    // window
+            // 2 箭头函数不能适用与对象中方法声明,因为this也是指向window
+            // let obj = {
+            //     name:'peter',
+            //     say: ()=> {
+            //         setTimeout(() => {
+            //             console.log(this)
+            //         });
+            //     }
+            // }
+            // obj.say(); // window
+            // 修改后
+            // let obj = {
+            //     name:'peter',
+            //     say: function () {
+            //         setTimeout(() => {
+            //             console.log(this)
+            //         });
+            //     }
+            // }
+            // obj.say(); // obj
+            // 3 箭头函数不能用于构造器，即不能new
+            // let Foo = () => {};
+            // let foo = new Foo(); // TypeError: Foo is not a constructor
+            // 4 不可以使用arguments对象，该对象在函数体内不存在 ,若使用会报错
+            // let fn = (a,b)=>{
+            //     console.log(arguments)
+            // }
+            // fn(1,2) // Uncaught ReferenceError: arguments is not defined
+            // let fn1 = function(a, b){
+            //     console.log(arguments)
+            // }
+            // fn1(1,2)  // Arguments(2) [1, 2, callee: ƒ, Symbol(Symbol.iterator): ƒ]
+            // 5 箭头函数没有prototype属性
+            // var Foo = () => {};
+            // console.log(Foo.prototype); // undefined
+            // 6 不可以使用yield命令，因此箭头函数不能用作 Generator 函数   ???
+            // yield 关键字通常不能在箭头函数中使用（除非是嵌套在允许使用的函数内）。因此，箭头函数不能用作生成器。
+            // 7 =>不能换行
+            // var func = ()
+            //         => 1; // SyntaxError: expected expression, got '=>'
+            // https://zhuanlan.zhihu.com/p/26540168
+
+            // 数组的扩展
+            // 扩展运算符   ...[]
+            // 用三个点将数组分成用逗号分隔的参数序列  相当与rest的逆运算
+            // function push(array, ...items) {
+            //     array.push(...items);
+            //     console.log(array)    // [1, 2, 3, 4, 1, 2, 3, 4, 5, 5]
+            // }
+            // let item = [1,2,3,4,5,5]
+            // push([1,2,3,4],...item)
+            // function add(x, y) {
+            //     return x + y;
+            // }
+            // console.log(add(...[1,2]))  // 3
+            // 使用扩展运算符的好处：
+            //     1 可以不使用apply方法将数组转成参数
+            // 1
+            // ES5 的写法
+            // let arr = Math.max.apply(null, [14, 3, 77])
+            // console.log(arr)    // 77
+            // ES6 的写法
+            // let arr1 = Math.max(...[14, 3, 77])
+            // console.log(arr1)  // 77
+            // 2
+            // ES5的 写法
+            // var arr1 = [0, 1, 2];
+            // var arr2 = [3, 4, 5];
+            // Array.prototype.push.apply(arr1, arr2);
+
+            // // ES6 的写法
+            // let arr1 = [0, 1, 2];
+            // let arr2 = [3, 4, 5];
+            // arr1.push(...arr2);
+            //     2 可以不使用concat合并数组
+            // let arr = [1,2,3,4].concat([5,6,7,8])
+            // console.log(arr)   // [1, 2, 3, 4, 5, 6, 7, 8]
+            // let arr1 = [1,2,3,4,...[5,6,7,8]]
+            // console.log(arr1)  // [1, 2, 3, 4, 5, 6, 7, 8]
+            //     3 可以将字符串转化成数组
+            // let arr = [...'abc']
+            // console.log(arr)    // ["a", "b", "c"]
+            //     4 可以将伪数组转化成数组
+            // let nodeList = document.querySelectorAll('div');
+            // console.log(nodeList)  // NodeList(4) [div, div, div, div]
+            // console.log(Array .isArray( nodeList ))   // false
+            // let array = [...nodeList];
+            // console.log(array) // [div, div, div, div]
+            // console.log(Array .isArray( array ))    // true
+            // ps:不能将类似于对象形式的伪数组转化成数组
+            // let array = {
+            //     '0': 'a',
+            //     '1': 'b',
+            //     '2': 'c',
+            //     length: 3
+            // };
+            // console.log([...array]);    // Uncaught TypeError: array is not iterable
+            //     5 方便使用Generator 函数
+            // es6 的方法已经总结道数组方法里了.
+            
+            // 对象的扩展
+            // 扩展运算符 ...{}
+            // 对象的扩展运算符（...）用于取出参数对象的所有可遍历属性，拷贝到当前对象之中。
+            // let z = { a: 3, b: 4 };
+            // let n = { ...z };
+            // console.log(n)   // { a: 3, b: 4 }
+
+            // 对象属性简写表示法：
+            // 对象可以用变量和函数作为对象的属性和方法，当属性名和属性值相同时，可以省略一个。方法也可以简写，看例子：
+            // let birth = '2018/03/14';
+            // const Person = {
+            //     name: 'peter', 
+            //     birth,   // 等同于birth: birth
+            //     hello() { console.log('我的名字是', this.name); }    // 等同于hello: function ()...
+            // };
+
+            // 属性名表达式
+            // 在声明对象的属性时，可以用标识符声明，es6可以用表达式来声明。
+            // 在使用对象字面量声明对象时，可以用中括号[]里写表达式
+            // let name = 'foo';
+            // let obj = {
+            //     [name](){console.log(0)},
+            //     ['a' + 'bc']: 123
+            // };
+            // console.log(obj)    // {foo: ƒ, abc: 123}
+            // ps，属性名表达式与简洁表示法，不能同时使用，会报错
+                
+            // super关键字
+            // super 指向当前对象的原型对象,只用在对象的方法中
+            // const proto = {
+            //     foo: 'hello'
+            // };
+            // const obj = {
+            //     foo: 'world',
+            //     find() {
+            //         return super.foo;
+            //     }
+            // };
+            // Object.setPrototypeOf(obj, proto);
+            // console.log(obj.find())// "hello"
+
+            // 对象方法:
+            // Object.is(a, b)   在严格模式下用来比较两个值是否相等，返回值是布尔值
+            // ps： +0 和 -0 在严格模式下相等，    但用Object.is()  不想等
+            //     NaN 在严格模式不想等，    但用Object.is() 想等
+            // console.log(+0 === -0)   //true
+            // console.log(Object.is(+0, -0)) // false
+            // console.log(NaN === NaN) // false
+            // console.log(Object.is(NaN, NaN)) // true
+
+            // Object.assign(target,source1,source2...)   对象合并，浅拷贝,将源对象（source）的所有可枚举属性，复制到目标对象（target）。
+            // params： target  目标对象，要合并的所存在的容器，只有一个
+            //         source  源对象，被合并的对象，可以多个
+            // const target = { a: 1 };
+            // const source1 = { b: 2 };
+            // const source2 = { c: 3 };
+            // Object.assign(target, source1, source2);
+            // console.log(target)     // {a:1, b:2, c:3}
+            // ps: 1 目标对象与源对象有同名属性，或多个源对象有同名属性，则后面的属性会覆盖前面的属性，在嵌套中，该方法也是替换而不是添加
+            //     2 如果只有一个参数，Object.assign会直接返回该参数。
+            //     3 只拷贝源对象的自身属性（不拷贝继承属性），也不拷贝不可枚举的属性（enumerable: false）
+            //     4 属性名为 Symbol 值的属性，也会被Object.assign拷贝。
+            //     5 浅拷贝，源对象某个属性的值是对象，那么目标对象拷贝得到的是这个对象的引用。
+            // const target = { a: 1, b: 1,c:{d:1,e:1} };
+            // const source1 = { b: 2, c: 2 };
+            // const source2 = { c: 3 };
+            // Object.assign(target, source1, source2);
+            // console.log(target)   // {a:1, b:2, c:3}
+    
+            // console.log(Object.assign({a:{b:1,c:1}}))   // {a: {…}}
+
+            // const obj1 = {a: {b: 1}};
+            // const obj2 = Object.assign({}, obj1);
+            // obj1.a.b = 2;
+            // console.log(obj2.a.b) // 2
+
+            // Object.setPrototypeOf(obj, proto)  用来设置一个对象的prototype对象，返回参数对象本身
+                // params: obj:  代表当前的对象
+                //         proto: 要设置的原型对象名
+            // let proto = {};
+            // let obj = { x: 10 };
+            // Object.setPrototypeOf(obj, proto);
+            // proto.y = 20;
+            // proto.z = 40;
+            // console.log(obj.x) // 10
+            // console.log(obj.y) // 20
+            // console.log(obj.z) // 40
+            // 上段代码将proto对象设为obj对象的原型，所以从obj对象可以读取proto对象的属性。
+
+            // Object.getPrototypeOf(obj) // 用来获取一个对象的prototype对象，返回参数对象本身
+            // let proto = {};
+            // let obj = { x: 10 };
+            // Object.setPrototypeOf(obj, proto);
+            // proto.y = 20;
+            // proto.z = 40;
+            // console.log(Object.getPrototypeOf(obj))   // {y: 20, z: 40}
+
+            // Object.keys() 返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键名
+            // let obj = {
+            //     name: 'peter',
+            //     age: 25,
+            //     sex: '男'
+            // }
+            // console.log(Object.keys(obj))   // ["name", "age", "sex"]
+
+            // Object.values() 返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键值
+            // let obj = {
+            //     name: 'peter',
+            //     age: 25,
+            //     sex: '男'
+            // }
+            // console.log(Object.values(obj))   // ["peter", 25, "男"]
+
+            // Object.entries() 返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键值对数组。
+            // let obj = {
+            //     name: 'peter',
+            //     age: 25,
+            //     sex: '男'
+            // }
+            // console.log(Object.entries(obj))   // [Array(2), Array(2), Array(2)]
+            // 当对象里套着一个对象时，以上方法是返回遍历一次的值
+    </script>
+</body>
+</html>
