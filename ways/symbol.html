@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>symbol</title>
+</head>
+<body>
+    <script>
+        // Symbol
+        // 是es6新增的第七种原始数据类型(null,string,number,undefined,boolean,object)，是为了在对象中对属性名滥用而导致的冲突问题。
+        // ps: 既然是数据类型，不是对象，那么就不能用new命令，因此不能添加属性
+        // let a = Symbol('a')
+        // console.log(a)   // Symbol(a)
+        // console.log(typeof a)   // symbol
+
+        // 简单来说：一旦声明一个变量为symbo类型，说明这个变量是唯一的，独一无二的，覆盖不了的。
+        // let a = Symbol('abc')
+        // let b = Symbol('abc')
+
+        // let c = 'abc'
+        // let d = 'abc'
+       
+        // console.log(a === b)   // false
+        // console.log(c === d)  // true
+        // 现在，在对象的属性名有两种类型，一个是以字符串的形式，另一个以Symbol的形式。
+        // 若以symbol的形式去写，那么就要按照规范去写，加上中括号[],来表明使用了symbol类型，获取时，而不是按照字符串类型的属性名去获取，而以中括号去获取。
+        // let name = Symbol()
+        // let obj = {
+        //     [name]: 'peter',
+        //     age: 25,
+        //     name: 'Peter'
+        // }
+        // console.log(obj)  // {age: 25, name: "Peter", Symbol(): "peter"}
+        // console.log(obj.name)   // Peter
+        // console.log(obj[name])  // peter
+        // 通过例子可知：获取对象时，得到是两个不一样的name属性名，说明symbo和字符串是两种不一样的值，获取方式也不一样，按照点获取的是字符串，中括号是symbol类型的值。
+        
+        // 关于在对象声明时对symbol类型的写法有三种：
+        // let sy = Symbol();
+        // // 第一种写法
+        // let a = {};
+        // a[sy] = 'Hello!';
+        // console.log(a)    // {Symbol(): "Hello!"}
+        // 第二种写法
+        // let a = {
+        //     [sy]: 'Hello!'
+        // };
+        // console.log(a)  // {Symbol(): "Hello!"}
+        // // 第三种写法
+        // let a = {};
+        // Object.defineProperty(a, sy, { value: 'Hello!' });
+        // console.log(a)  // // {Symbol(): "Hello!"}
+        // 实例
+        // const shapeType = {
+        //     triangle: Symbol(),
+        //     rectangle: Symbol(),
+        // };
+
+        // function getArea(shape, options) {
+        //     let area = 0;
+        //     switch (shape) {
+        //         case shapeType.triangle:
+        //         area = .5 * options.width * options.height;
+        //         break;
+        //         case shapeType.rectangle:
+        //         area = options.width * options.height;
+        //         break;
+        //     }
+        //     return area;
+        // }
+
+        // let a = getArea(shapeType.triangle, { width: 100, height: 100 });
+        // let b = getArea(shapeType.rectangle, { width: 100, height: 100 });
+        // console.log(a)   // 5000
+        // console.log(b)   // 10000
+
+        // Symbol方法:
+        // Object.getOwnPropertySymbols()   返回一个数组，成员是当前对象的所有用作属性名的 Symbol 值
+        // symbol在对象上作为一个属性名，不会被循环的方法所识别，不会出现在for...in、for...of循环中，不会被Object.keys()、Object.getOwnPropertyNames()、JSON.stringify()返回，所以它有自己获取symbol值的方法。
+        // let name = Symbol('name');
+        // let age = Symbol('age')
+        // let obj = {
+        //     [name]: 'peter',
+        //     [age]: 25
+        // }
+        // let a = Object.getOwnPropertySymbols(obj)
+        // console.log(a)    // [Symbol(name), Symbol(age)]
+
+        // Reflect.ownKeys() 返回所有类型的键名，包括常规键名和 Symbol 键名
+        // let name = Symbol('name');
+        // let obj = {
+        //     [name]: 'peter',
+        //     age: 25,
+        //     enum: 2
+        // }
+        // console.log(Reflect.ownKeys(obj))    // ["age", "enum", Symbol(name)]
+
+        // Symbol.for()   接受一个字符串作为参数，然后搜索有没有以该参数作为名称的 Symbol 值。如果有，就返回这个 Symbol 值，否则就新建并返回一个以该字符串为名称的 Symbol 值。
+        // 这个方法就是重新使用已有symbol的值，在遍历判断时常用
+        // let a = Symbol.for('abc');
+        // let b = Symbol.for('abc');
+        // let c = Symbol.for('ab');
+        // console.log(a === b)    // true
+        // let a = Symbol.for('abc') 
+        // let b = Symbol('abc')
+        // console.log(a)   // Symbol(abc)
+        // console.log(a === b)   // false
+        // 由此可知：a虽然用Symbol.for声明了symbol类型，但是却和symbol声明不一样，说明两者不是同一个值。
+
+    </script>  
+</body>
+</html>
