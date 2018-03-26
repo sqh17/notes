@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>promise对象</title>
+</head>
+<body>
+    <script>
+        // Promise对象是为了简化异步编程。解决回调地狱情况
+        // Promise，简单说就是一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果。从语法上说，Promise 是一个对象，从它可以获取异步操作的消息。
+        // Promise是一个对象，可以用构造函数来创建一个Promise实例。
+        // let promise = new Promise((resolve, reject) =>{
+        //     // .... some coding
+        //     if (true){   // 异步操作成功
+        //         resolve(value);
+        //     } else {
+        //         reject(error);
+        //     }
+        // })
+        // promise.then(value=>{
+        //     // 成功的回调函数
+        // }, error=>{
+        //     // 失败后的回调函数
+        // })
+        // params:传参是一个回调函数。这个回调函数有两个参数resolve和reject。
+        //         resolve: 将Promise对象的状态从“未完成”变为“成功”（即从 pending 变为 resolved），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去.
+        //             (简单来说就是成功了的执行)
+        //         reject: 将Promise对象的状态从“未完成”变为“失败”（即从 pending 变为 rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。
+        //             (简单来说就是失败了的执行)
+        // promise之后then的参数：
+        //     第一个参数是成功的回调函数，必选
+        //     第二个参数是失败的回调函数,可选
+        // let promise = new Promise((resolve, reject) =>{
+        //     console.log('开始')
+        //     if (2 > 1){   // 异步操作成功
+        //         resolve({name:'peter',age:25});
+        //     } else {
+        //         reject(error);
+        //     }
+        // })
+        // promise.then(value=>{
+        //     // 成功的回调函数
+        //     console.log('2')
+        // }, error=>{
+        //     // 失败后的回调函数
+        //     console.log(error)
+        // })
+        // // 开始
+        // // {name: "peter", age: 25} 
+
+        // let promise = new Promise((resolve, reject) =>{
+        //     console.log('开始')
+        //     if (2 > 3){   // 异步操作成功
+        //         resolve(a);
+        //     } else {
+        //         reject('未知错误');
+        //     }
+        // })
+        // promise.then(value=>{
+        //     // 成功的回调函数
+        //     console.log(value)
+        // }, error=>{
+        //     // 失败后的回调函数
+        //     console.log(error)
+        // })
+        // 开始
+        // 未知错误
+        // Promise的特点:
+        //     1 对象的状态不受外界影响。Promise对象代表一个异步操作，有三种状态：pending（进行中）、fulfilled（已成功）和rejected（已失败）。只有异步操作的结果，可以决定当前是哪一种状态，任何其他操作都无法改变这个状态。
+        //     2 一旦状态改变，就不会再变，任何时候都可以得到这个结果。就是成功了就一直是成功的状态，失败一直是失败的状态
+        // promise先按顺序实行完promise实例中方法再实行then中的resolve或者reject.
+        // let promise = new Promise((resolve, reject)=>{
+        //     console.log('promise')
+        //     if (2 > 1){   // 异步操作成功
+        //         resolve({name:'peter',age:25});
+        //     } else {
+        //         reject(error);
+        //     }
+        //     console.log('end')
+        // })
+        // promise.then(
+        //     value=>{
+        //         console.log(value)
+        //     },
+        //     error=>{
+        //         console.log(error)
+        //     }
+        // )
+        // // promise
+        // // end 
+        // // {name: "peter", age: 25}
+        // promise封装Ajax的例子
+        // const getJSON = function (url) {
+        //     const promise = new Promise(function (resolve, reject) {
+        //         const handler = function () {
+        //             if (this.readyState !== 4) {
+        //                 return;
+        //             }
+        //             if (this.status === 200) {
+        //                 resolve(this.response);
+        //             } else {
+        //                 reject(new Error(this.statusText));
+        //             }
+        //         };
+        //         const client = new XMLHttpRequest();
+        //         client.open("GET", url);
+        //         client.onreadystatechange = handler;
+        //         client.responseType = "json";
+        //         client.setRequestHeader("Accept", "application/json");
+        //         client.send();
+        //     });
+        //     return promise;
+        // };
+
+        // getJSON("xxxxx").then(function (json) {
+        //     console.log('Contents: ' + json);
+        // }, function (error) {
+        //     console.error('出错了', error);
+        // });
+
+        // Promise方法:
+        // then()   为 Promise 实例添加状态改变时的回调函数 ,上面已经提起过.
+        // params:   第一个参数是resolved状态的回调函数， 必选
+        //           第二个参数是rejected状态的回调函数,  可选
+        // ps: then方法返回的是一个新的Promise实例（注意，不是原来那个Promise实例）。因此可以采用链式写法，即then方法后面再调用另一个then方法。
+        // function start() {
+        //     return new Promise((resolve, reject) => {
+        //         resolve('start');
+        //     });
+        // }
+        // start()
+        //     .then(data => {
+        //         // promise start
+        //         console.log(data);
+        //         return Promise.resolve(1); // p1
+        //     })
+        //     .then(data => {
+        //         // promise p1
+        //         console.log(data);
+        //     })
+        // // start
+        // // 1
+        // promise的链式编程，就是第一个的Promise实例的返回的值作为下一个Promise实例的参数。   
+        
+        // catch()  用于指定发生错误时的回调函数 和then一样，存在链式
+        // 返回一个Promise对象，如果该对象状态变为resolved，则会调用then方法指定的回调函数；如果异步操作抛出错误，状态就会变为rejected，就会调用catch方法指定的回调函数，处理这个错误。
+        // function start() {
+        //     return new Promise((resolve, reject) => {
+        //         resolve('start');
+        //     });
+        // }
+        // start()
+        //     .then(data => {
+        //         // promise start
+        //         console.log(data);
+        //         return Promise.reject(1); // p1
+        //     })
+        //     .catch(data => {
+        //         // promise p1
+        //         console.log(data);
+        //     })
+        // then方法指定的回调函数，如果运行中抛出错误(reject)，也会被catch方法捕获。如果运行中是正确的，则不会实行catch语句，而是then的回调
+        // function start() {
+        //     return new Promise((resolve, reject) => {
+        //         if(2>3){
+        //             resolve('start');
+        //         }else{
+        //             reject('error')
+        //         }
+        //     });
+        // }
+        // start()
+        //     .then(data => {
+        //         console.log(data);
+        //     })
+        //     .catch(data => {
+        //         console.log(data);
+        //     })
+        // error
+        // try catch方法等价于promise 抛出错误：
+        // // 写法一
+        // const promise = new Promise(function(resolve, reject) {
+        //     try {
+        //         throw new Error('test');
+        //     } catch(e) {
+        //         reject(e);
+        //     }
+        // });
+        // promise.catch(function(error) {
+        //     console.log(error);
+        // });
+
+        // // 写法二
+        // const promise = new Promise(function(resolve, reject) {
+        //     reject(new Error('test'));
+        // });
+        // promise.catch(function(error) {
+        //     console.log(error);
+        // })
+        // 如果链式中，写了then和catch语句，运行正确，则会进行下一个then，在这个then中运行错误，则会抛出这个之后的catch而不是上一个catch
+        // function start() {
+        //     return new Promise((resolve, reject) => {
+        //         if(4>3){
+        //             resolve('start');
+        //         }else{
+        //             reject('error')
+        //         }
+        //     });
+        // }
+        // start()
+        //     .then(data => {
+        //         console.log(data);
+        //         return Promise.resolve(1)
+        //     })
+        //     .catch(data => {
+        //         console.log(data)
+        //     })
+        //     .then(data => {
+        //         console.log(data)
+        //         return Promise.reject(2)
+        //     })
+        //     .catch(data => {
+        //         console.log(data);
+        //     })
+        // // start
+        // // 1
+        // // 2
+        // finally() 不管promise最后的状态，在执行完then或catch指定的回调函数以后，都会执行finally方法指定的回调函数
+        // finally方法不接受任何回调函数作为参数，因此不知道Promise对象是resolve还是reject。该方法与Promise状态无关，不依赖其执行结果。
+        // function promise(){
+        //     return new Promise((resolve, reject) => {
+        //         resolve('success');
+        //     })
+        // };
+        // promise().then(data => {
+        //     console.log(data)
+        //     return Promise.reject('fail')
+        // }).catch(data =>{
+        //     console.log(data)
+        // }).finally(() => {
+        //     console.log('end')
+        // })
+        // // success
+        // // fail
+        // // end
+        // Promise.all()  将多个 Promise 实例，包装成一个新的 Promise 实例。并行执行异步操作的能力，并且在所有异步操作执行完后才执行回调
+        // const allPromise = Promise.all([p1, p2, p3])
+        // 上述代表将p1,p2,p3这些Promise实例包装成allPromise，参数不一定是数组，只要是有遍历结构就可以作为参数。
+        // 从而该实例的状态有两种情况：
+        //     1: 当所有的状态都是resolve时，allPromise的状态是resolve
+        //     2：当有一个状态是reject，allPromise的状态取决于第一次reject的状态。
+        // 当全部状态为resolve时。
+        // function promise(){
+        //     return new Promise((resolve, reject) => {
+        //         console.log(1)
+        //         resolve('第一个');
+        //     })
+        // };
+        // function promise1(){
+        //     return new Promise((resolve, reject) => {
+        //         console.log(2)
+        //         resolve('第二个');
+        //     })
+        // };
+        // function promise2(){
+        //     return new Promise((resolve, reject) => {
+        //         console.log(3)
+        //         resolve('第三个');
+        //     })
+        // };
+        // Promise.all([promise(), promise1(), promise2()])
+        // .then(data => {
+        //     console.log(data)
+        // })
+        // .catch(data => {
+        //     console.log(data)
+        // })
+        // // 1
+        // // 2
+        // // 3
+        // // [1,2,3]
+
+        // 当全部状态中有一个是reject时
+        // function promise(){
+        //     return new Promise((resolve, reject) => {
+        //         console.log(1)
+        //         resolve('第一个');
+        //     })
+        // };
+        // function promise1(){
+        //     return new Promise((resolve, reject) => {
+        //         console.log(2)
+        //         reject('第二个');
+        //     })
+        // };
+        // function promise2(){
+        //     return new Promise((resolve, reject) => {
+        //         console.log(3)
+        //         resolve('第三个');
+        //     })
+        // };
+        // Promise.all([promise(), promise1(), promise2()])
+        // .then(data => {
+        //     console.log(data)
+        // })
+        // .catch(data => {
+        //     console.log(data)
+        // })
+        // // 1
+        // // 2
+        // // 3
+        // // 第二个
+        // Promise.all()可以适用于初始化的场景
+
+        // Promise.race()  将多个 Promise 实例，包装成一个新的 Promise 实例。
+        // 和Promise.all()的用法一样，唯一不同的是，Promise实例中谁先执行，就先返回执行那一方的回调函数(resolve和reject同样的道理，谁先执行就执行谁的回调函数)
+        // function promise(){
+        //     return new Promise((resolve, reject) => {
+        //         setTimeout(function(){
+        //             console.log(1);
+        //             resolve('第一个');
+        //         }, 4000);
+        //     })
+        // };
+        // function promise1(){
+        //     return new Promise((resolve, reject) => {
+        //         setTimeout(function(){
+        //             console.log(2);
+        //             resolve('第二个');
+        //         }, 2000);
+        //     })
+        // };
+        // function promise2(){
+        //     return new Promise((resolve, reject) => {
+        //         setTimeout(function(){
+        //             console.log(3);
+        //             resolve('第三个');
+        //         }, 3000);
+        //     })
+        // };
+        // Promise.race([promise(),promise1(), promise2()])
+        // .then(data => {
+        //     console.log(data)
+        // })
+        // .catch(data => {
+        //     console.log(data)
+        // })
+        // // 2 
+        // // 第二个
+        // // 1
+        // // 3
+        // 该方法可以适用于请求超时触发回调
+
+        // Promise.resolve()   返回一个新的Promise实例，并且状态为resolve。
+        // function fn(){
+        //     console.log('success')
+        //     return 1
+        // }
+        // Promise.resolve(fn())
+        // .then(data => {
+        //     console.log(data)
+        // })
+        // // success
+        // // 1
+
+        // Promise.reject() 返回一个新的Promise实例，并且状态为reject。
+        // function fn(){
+        //     console.log('fail')
+        //     return 2
+        // }
+        // Promise.reject(fn())
+        // .then(data => {
+        //     console.log(data)
+        // })
+        // .catch(data => {
+        //     console.log(data)
+        // })
+        // // fail
+        // // 2
+    </script>
+</body>
+</html>
