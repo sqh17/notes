@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        td,th{
+            width: 250px;
+            text-align: center;
+            border: 1px solid #000;
+        }
+        th {
+            background: #ccc
+        }
+    </style>
+    <script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body>
+<ul class="btn">
+    <li class="current">2年龄</li>
+    <li>2姓名</li>
+    <li class="current">3面试时间</li>
+    <li class="current">4面试类型</li>
+    <li>5面试官</li>
+    <li>6结论</li>
+</ul>
+<table>
+    <thead>
+        <tr>
+            <th>年龄</th>
+            <th>姓名</th>
+            <th>面试时间</th>
+            <th>面试类型</th>
+            <th>面试官</th>
+            <th>结论</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>33</td>
+            <td >章三</td>
+            <td>2018-04-04</td>
+            <td>交互设计师</td>
+            <td>琪琪</td>
+            <td>待查</td>
+        </tr>
+        <tr>
+            <td>20</td>
+            <td >李四</td>
+            <td>2018-03-07</td>
+            <td>前端工程师</td>
+            <td>悠悠</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>24</td>
+            <td >王五</td>
+            <td>2018-04-10</td>
+            <td>java工程师</td>
+            <td>懒懒</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>18</td>
+            <td >六六</td>
+            <td>2018-03-05</td>
+            <td>UI设计师</td>
+            <td>张施</td>
+            <td>通过</td>
+        </tr>
+        <tr>
+            <td>21</td>
+            <td >刘灿</td>
+            <td>2018-04-14</td>
+            <td>交互设计师</td>
+            <td>琪琪</td>
+            <td>通过</td>
+        </tr>
+        <tr>
+            <td>28</td>
+            <td >李江</td>
+            <td>2018-03-27</td>
+            <td>前端工程师</td>
+            <td>悠悠</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22</td>
+            <td >王雷</td>
+            <td>2018-03-30</td>
+            <td>java工程师</td>
+            <td>懒懒</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>25</td>
+            <td >刘哲</td>
+            <td>2018-03-16</td>
+            <td>UI设计师</td>
+            <td>张施</td>
+            <td>通过</td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+    // 隐藏和显示
+    $('li').on('click',function(){
+       var index = $(this).index()
+       $('thead').find('th').eq(index).toggle()
+       $('tbody tr').each(function(){
+           $(this).find('td').eq(index).toggle()
+       })
+    })
+
+
+    $('thead th').attr('draggable',true); // 将表格th声明为可拖拽
+
+    $('thead th').on('dragstart',function(ev){
+        // 被拖数据的数据类型和值
+        ev.originalEvent.dataTransfer.setData("Text", ev.currentTarget.cellIndex);
+    })
+
+    $('thead th').on('dragover',function(ev){
+        // 阻止默认行为
+        ev.preventDefault();
+    })
+
+    $('thead th').on('drop',function(ev){
+        // 阻止默认行为
+        ev.preventDefault();
+        // 获取被拖的数据的索引
+        var id = ev.originalEvent.dataTransfer.getData("Text");
+        // 当前要放下的索引
+        var Id = this.cellIndex;
+        // 存储点击的this
+        var that = this;
+        // 遍历th
+        $('thead th').each(function(){
+            // 获取遍历的每一个th，这个this和点击的this不一样
+            var _this = this;
+            // 当遍历的每一个th的索引和被拖拽的索引一致时，重构
+            if(_this.cellIndex == id){
+                if(id > Id){
+                    that.before(_this);
+                }else{
+                    that.after(_this);
+                }
+            }
+        })
+        // 遍历tbody的tr
+        $('tbody tr').each(function(i){
+            // 提供一个容器,分别用来存储原位置的一列和被拖拽的一列
+            var box1 = "";
+            var box2 = "";
+            // 遍历tr中的td
+            $(this).children('td').each(function(){
+                // 存储原位置的一列
+                if(this.cellIndex == Id){
+                    box1 = this;
+                }
+                // 存储被拖拽的一列
+                if(this.cellIndex == id){
+                    box2 = this;
+                }
+            })
+            if(id > Id){
+                box2.after(box1);
+            }else{
+                box2.before(box1);
+            }
+        })
+    })
+    
+    
+</script>
+</body>
+</html>
