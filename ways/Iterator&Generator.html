@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Iterator和Generator</title>
+</head>
+<body>
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+    <div>4</div>
+    <script>
+        // Interator，中文简称：遍历器，是一种接口，为具有遍历结构的或者说有length长度的集合提供一个接口，从而进行遍历操作。
+        // Generator，中文简称：生成器，从语法上讲是一种状态机，通过遍历操作，展示不同的状态情况。
+
+        // Interator(遍历器)   
+        // Iterator 接口的目的，就是为所有数据结构，提供了一种统一的访问机制，为for-of这个遍历方法提供接口，任何数据结构只要部署 Iterator 接口，就可以完成遍历操作（即依次处理该数据结构的所有成员）。
+        // 在  JavaScript 中 迭代器是一个对象，它提供了一个next() 方法，(除了next()方法还有return和throw方法),用来返回序列中的下一项。这个方法返回包含两个属性：done和 value。done属性是个布尔值，代表遍历是否结束,即是否还有必要再一次调用next方法。，value属性代表当前成员的值。
+        // 迭代器对象一旦被创建，就可以反复调用next()。
+        // 以下代码是模拟迭代器   
+        // function makeIterator(array){
+        //     var nextIndex = 0;
+        //     return {
+        //     next: function(){
+        //         return nextIndex < array.length ?
+        //             {value: array[nextIndex++], done: false} :
+        //             {done: true};
+        //     }
+        //     };
+        // }
+        // let a = makeIterator(['apple','pear','orange'])
+        // console.log(a.next())   // {value: "apple", done: false}
+        // console.log(a.next())   // {value: "pear", done: false}
+        // console.log(a.next())   // {value: "orange", done: false}
+        // console.log(a.next())   // {done: true}
+        // 由上述例子可知：next方法返回的是一个对象，有value和done属性，如果还有下一个next()可遍历，那么为false，如果为true，说明不可再次遍历。
+        // ps：遍历器创建之后不会自动触发，而是由next()触发
+        // 一种数据结构只要部署了 Iterator 接口，我们就称这种数据结构是“可遍历的”（iterable），
+        // ES6 规定，默认的 Iterator 接口部署在数据结构的Symbol.iterator属性, Symbol.iterator属性本身是一个函数，就是当前数据结构默认的遍历器生成函数。执行这个函数，就会返回一个遍历器。
+        // 常见的具有Iterator接口的遍历器:
+        //     Array
+        //     Map
+        //     Set
+        //     String
+        //     TypedArray
+        //     函数的 arguments 对象
+        //     NodeList 对象
+        //     生成器
+        // ps:普通的对象不具有Iterator接口，原因是对象的遍历是没有顺序的，没有相应的索引值可言，所以想要使普通的对象要有Iterator接口，需要给它加上Object方法变成有顺序的对象即可。
+        // Iterator遍历器简单来说，就是在具有Iterator的对象(Array，Map，Set，String，TypedArray，函数的 arguments 对象，NodeList 对象，生成器)上进行for-of的循环，并且用next()方法获取遍历的值.
+
+        // 学习一下新型的for-of循环。可在具有Iterator 接口的元素进行遍历。
+        // for-of循环和以前的以前的for循环和es5的forEach循环一样，遍历操作。
+        // for...of语句在可迭代对象（包括 Array，Map，Set，String，TypedArray，arguments 对象等等）上创建一个迭代循环，调用自定义迭代钩子，并为每个不同属性的值执行语句。/
+        // let arr = [1,2,3];
+        // for(let v of arr){
+        //     v +=1;
+        //     console.log(v)
+        // } // 2  3  4
+        // for-of替代了以前的所有的循环遍历，融合了其优点，摒弃了其缺点。
+        // for-of与for，forEach，for-in相比的优缺点
+        // 1 forEach循环不能用 break 中断循环，否则会报错.也不能使用 return 语句返回到外层函数
+        // [1,2,3,4,5].forEach((i,v) => {
+        //     console.log(v)
+        //     if(i > 3){
+        //         break;
+        //     }
+        // })  // Uncaught SyntaxError: Illegal break statement
+
+        // 2 for-in 遍历,只获取键名，获取不到键值。以任意顺序遍历键名，只能遍历带有字符串的key。通常不推荐循环数组，。
+        // for(let v in ['a','b','c']){
+        //     console.log(v)
+        // }  // 0   1   2
+
+        // 3 for循环书写太复杂，emmmm，只能这么说
+
+        // for-of的优点：
+        // 最简洁、最直接的遍历数组元素的语法
+        // let arr = [1,2,3,4];
+        // for(let v of arr){
+        //     console.log(v)
+        // }  // 1    2    3    4
+        // 这个方法避开了for-in循环的所有缺陷
+        // let a = ['a','b','c','d']
+        // for(let v of a){
+        //     console.log(v)
+        // }   // a   b   c    d
+        // 上述代码for-of可以直接获取键值，如果想要获取其索引值可以采用Object扩展方法keys()和entires()
+        //     与forEach()不同的是，它可以正确响应break、continue和return语句
+        // for(let v of [1,2,3,4,5]){
+        //     console.log(v)
+        //     if(v > 3){
+        //         break
+        //     }
+        // } //  1   2   3    4     5
+        // 可以遍历其他的所有集合(Nodelist,Set,Map),还有生成器
+        // let doms = document.querySelectorAll('div')
+        // for(let v of doms){
+        //     console.log(v.innerHTML)
+        // }    // 1   2   3   4
+        // for-of可以遍历dom元素，并且进行相应的操作
+        // let set = new Set([1,2,3,4,5])
+        // for(let v of set){
+        //     console.log(v)
+        // }   //  1   2  3  4  5
+        // let map = new Map().set('a',1).set('b',2)
+        // for(let v of map){
+        //     console.log(v)
+        // }   
+        // // ["a", 1]
+        // // ["b", 2] 
+        // Set和Map本身具有 Iterator 接口，所以用for-of循环，set返回的是一个值，而map返回的是一个数组
+        // 生成器在后面学习
+
+        // ps:for-of不能遍历普通的对象，会报xxx is not iterable,需要把普通对象转化成具有Interator接口的即可。Object.keys(),Object.values()和Obejct.entries()也可以获取
+        // let obj = {name:'peter',age:25}
+        // for(let v of obj){
+        //     console.log(v)
+        // } // Uncaught TypeError: obj is not iterable
+        // let obj = {name:'peter',age:25}
+        // for(let v of Object.keys(obj)){
+        //     console.log(v)
+        // } // name  age
+        
+            // 另外，for-of可以适用于字符串
+        // let str = 'hello';
+        // for(let v of str) {
+        //     console.log(v)
+        // }   // h  e  l  l  o
+
+        // Generator(生成器)  
+        // 通过对Interator的理解，生成器也是具有Interator接口的对象，它本身带有遍历特性，返回一个遍历器对象。
+        // 从写法上看，它和普通函数差别不大，就多了两个特性：
+        //         1 在函数声明前加上星号(*),
+        //         2 函数内部多了一个关键字yield。
+        // 既然生成器是遍历器，那么可以使用遍历器的方法(本身函数不会实行，必须通过next()方法才能调用)
+        // function *fn(){
+        //     yield 'peter';
+        //     yield 1;
+        //     yield {name:'peter'};
+        //     yield [1,2,3,4];
+        //     yield function *foo(){
+        //         yield 123;
+        //     }
+        // }
+        // let a = fn()
+        // console.log(a.next())
+        // console.log(a.next())
+        // console.log(a.next())
+        // console.log(a.next())
+        // console.log(a.next())
+        // console.log(a.next())
+        // {value: "peter", done: false}
+        // {value: 1, done: false}
+        // {value: {…}, done: false}
+        // {value: Array(4), done: false}
+        // {value: ƒ, done: false}
+        // {value: undefined, done: true}
+        // 从上述例子可知:每一个next()方法，就返回一个数据，这说明yield表达式代表一个进程，返回其后面的表达式。
+        // 学习一下yield
+        // 1 由于 Generator 函数返回的遍历器对象，只有调用next方法才会遍历下一个内部状态，所以其实提供了一种可以暂停执行的函数。所以yield表达式就是暂停标志。
+        // 2 yield 是关键字，其后面可以跟变量，常量，表达式，但是必须有next方法才能调用,本身不是返回值
+        // function *fn(){
+        //     yield 'a';
+        //     let b = yield 'b' + 'c';
+        //     yield 'd'
+        // }
+        // let foo = fn()
+        // for(let v of foo){
+        //     console.log(v)
+        // }  //  a   bc    d
+        // 由上述例子可知：yield返回的是后面的表达式，不影响前面的声明
+        // 3 遇到yield表达式时，进程暂停，next()方法才会调用yield后面的表达式。
+        // function *fn(){
+        //     yield '1'
+        //     console.log('start')
+        //     yield '2'
+        // }
+        // let a = fn()
+        // console.log(a.next())   
+        // {value: "1", done: false}
+        // 4 作用和return差不多，但也有区别，return只能执行一回，yield能执行多次，每次遇到yield时就先暂停，然后下一次运行从暂停的位置开始。
+        // 5 yield只能在Genterator函数里才能运用，在其他地方运用会报错。
+        // function fn(){
+        //     yield 'a'
+        // }
+        // fn()   // Uncaught SyntaxError: Unexpected string
+        // 6 yield和return同时在一个函数里时，按照代码同步顺序执行的结果，到了return就直接返回，不继续执行下一步。
+        // function *fn(){
+        //     yield '1';
+        //     yield '2';
+        //     return '3';
+        //     yield '4'
+        // }
+        // let a = fn()
+        // console.log(a.next());  // {value: "1", done: false}
+        // console.log(a.next());  // {value: "2", done: false}
+        // console.log(a.next());  // {value: "3", done: true}
+        // console.log(a.next());  // {value: undefined, done: true}
+        // console.log(a.next());  // {value: undefined, done: true}
+        // 7 yield 也可以跟星号，代表在一个 Generator 函数里面执行另一个 Generator 函数。
+        // 在生成器函数里是无法进行另一个Generator函数的，没有效果,若单单使用yield，返回的是另一个生成器的对象
+        // function *foo(){
+        //     yield 'f'
+        // }
+        // function *fn(){
+        //     yield 'a';
+        //     yield foo()
+        //     yield 'b'
+        // }
+        // for( let v of fn()){
+        //     console.log(v)    // a   foo {<suspended>}     b
+        // }
+        // 所以在yield* 可以用来进行另一个Generator函数(只要在一个Generator函数运行另一个Generator函数就可以直接yield*)
+        // function *foo(){
+        //     yield 1;
+        //     yield 2
+        // }
+        // function *fn(){
+        //     yield 'a';
+        //     yield *foo()
+        //     yield 'b'
+        // }
+        // for( let v of fn()){
+        //     console.log(v)    // a   1  2    b
+        // }
+
+        // 上面已经说到生成器也是具有Interator接口的对象，不可置否的，生成器本身带有Symbol.iterator，可以说生成器是遍历器的一种，所以可遍历，可以使用for-of来循环数据。
+        // for...of循环可以自动遍历 Generator 函数时生成的Iterator对象，且此时不再需要调用next方法。
+        // 简单来说，for-of里返回的数据和next()中value一样.区别在于for-of循环完后不循环return后面的表达式。而next()则会。
+        // function *fn(){
+        //     yield 'a';
+        //     yield 'b';
+        //     yield 'c';
+        //     yield 'd';
+        //     return 'end'
+        // }
+        // let a = fn()
+        // for(let v of a){
+        //     console.log(v)  // a   b   c    d   
+        // }
+        // function *fn(){
+        //     yield 'a';
+        //     yield 'b';
+        //     yield 'c';
+        //     yield 'd';
+        //     return 'end'
+        // }
+        // let a = fn()
+        // console.log(a.next());   // {value: "a", done: false}
+        // console.log(a.next());   // {value: "b", done: false}
+        // console.log(a.next());   // {value: "c", done: false}
+        // console.log(a.next());   // {value: "d", done: false}
+        // console.log(a.next());   // {value: "end", done: true}
+        // console.log(a.next());   // {value: undefined, done: true}
+        
+        // 扩展运算符也支持生成器的遍历
+        // function *fn(){
+        //     yield 'a';
+        //     yield 'b';
+        //     yield 'c';
+        //     yield 'd';
+        //     return 'end'
+        // }
+        // let a = fn()
+        // console.log([...a])   //  ["a", "b", "c", "d"]
+        // 由此可见，遍历出来的依然不包含return的表达式
+        // 概要总结；只要具有Symbol.iterator属性的，就可以遍历yield表达式
+
+        // Generator 函数也不能跟new命令一起用，会报错
+        // function* f() {
+        //     yield 2;
+        //     yield 3;
+        // }
+        // new f()  // TypeError: F is not a constructor
+          
+        // Generator 函数的方法:
+        // next()   返回 Generator 函数对象中yield后面的表达式，上面已经用到了next方法。yield表达式本身没有返回值，总是返回undefined
+        // 当next()有参数时,该参数就会被当作上一个yield表达式的返回值。
+        // function *fn(x){
+        //     let a = yield x;
+        //     let b = yield 2 + a;
+        // }
+        // let a = fn(2);
+        // console.log(a.next(5));   // {value: 2, done: false}
+        // console.log(a.next(10));  // {value: 12, done: false}
+        // console.log(a.next(20));  // {value: undefined, done: true}
+        // 由于next方法的参数表示上一个yield表达式的返回值，所以在第一次使用next方法时，传递参数是无效的。所以第一个next方法用来启动遍历器对象，所以不用带有参数。
+        // 第二个next()方法把第二个yield后面的2替换成了10，所以10+2=12
+        // 第三个next()方法因为没有yield，返回undefined，参数无效
+        // ps:如果一开始传了参数，第二个next没有传参数，则是undefined
+        // function *fn(x){
+        //     let a = yield x;
+        //     let b = yield 2 + a;
+        // }
+        // let a = fn(2);
+        // console.log(a.next());   // {value: 2, done: false}
+        // console.log(a.next());  // {value: NaN, done: false}
+        // console.log(a.next());  // {value: undefined, done: true}
+        // 第二个传参为空导致undefined+2等于NaN
+        // next()方法的意义：Generator 函数从暂停状态到恢复运行，它的上下文状态（context）是不变的。通过next方法的参数，就有办法在 Generator 函数开始运行之后，继续向函数体内部注入值。也就是说，可以在 Generator 函数运行的不同阶段，从外部向内部注入不同的值，从而调整函数行为。
+            
+        // throw()  在函数体外抛出错误，然后在 Generator 函数体内捕获。
+        // let a = function* () {
+        //     try {
+        //         yield ;
+        //     } catch ( e ){
+        //         console.log(e);
+        //     }
+        // };
+        // var i = a();
+        // console.log(i.throw())  // Uncaught undefined
+        // 生成器的声明方式和普通的一样，yield后面没有表达式，为undefined
+        // throw方法可以接受一个参数，该参数会被catch语句接收，建议抛出Error对象的实例。
+        // let g = function* () {
+        //     try {
+        //         yield 1;
+        //     } catch (e) {
+        //         console.log(e);
+        //     }
+        //     yield 'a';
+        //     yield 'b'
+        // };
+
+        // let i = g();
+        // console.log(i.next())  // 1
+        // i.throw(new Error('出错了！'));  // Error: 出错了！(…)   附带执行了一次yield ‘a’
+        // console.log(i.next())  // b
+        // throw()方法的作用就是捕获异常，并且继续执行下去,不因为异常而中断。throw方法被捕获以后，会附带执行下一条yield表达式。也就是说，会附带执行一次next方法。
+        // ps:不要混淆遍历器对象的throw方法和全局的throw命令。上面的异常是用遍历器对象的throw方法抛出的，而不是用throw命令抛出的。后者只能被函数体外的catch语句捕获。
+        // 这种函数体内捕获错误的机制，大大方便了对错误的处理。多个yield表达式，可以只用一个try...catch代码块来捕获错误。如果使用回调函数的写法，想要捕获多个错误，就不得不为每个函数内部写一个错误处理语句，现在只在 Generator 函数内部写一次catch语句就可以了。
+
+        // return() 返回给定的值，并且终结遍历 Generator 函数。
+        // 当return()不传参数时，默认是undefined，就相当于最后一步，done即为true时的操作，value值为undefined
+        // function *fn(){
+        //     yield 1;
+        //     yield 2;
+        //     return 3;
+        // }
+        // let a = fn();
+        // console.log(a.next())   // {value: 1, done: false}
+        // console.log(a.return());   // {value: undefined, done: true}
+        // console.log(a.next())   // {value: undefined, done: true}
+
+        // 当return()传参数时，value值为传的参数
+        // function *fn(){
+        //     yield 1;
+        //     yield 2;
+        //     return 3;
+        // }
+        // let a = fn();
+        // console.log(a.next())   // {value: 1, done: false}
+        // console.log(a.return(100));   // {value: 100, done: true}
+        // console.log(a.next())   // {value: undefined, done: true}
+
+        
+        </script>
+</body>
+</html>

@@ -11,3 +11,4 @@
 * [es6学习笔记--新集合Set和Map](https://github.com/sqh17/notes/blob/master/ways/SetAndMap.html)
 * [es6学习笔记--新对象Promise](https://github.com/sqh17/notes/blob/master/ways/Promise.html)
 * [html5--drag&drop](https://github.com/sqh17/notes/blob/master/ways/dragAnddrop.html)
+* [es6学习笔记--Iterator&Generator](https://github.com/sqh17/notes/blob/master/ways/Iterator&Generator.html)
