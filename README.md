@@ -12,3 +12,4 @@
 * [es6学习笔记--新对象Promise](https://github.com/sqh17/notes/blob/master/ways/Promise.html)
 * [html5--drag&drop](https://github.com/sqh17/notes/blob/master/ways/dragAnddrop.html)
 * [es6学习笔记--Iterator&Generator](https://github.com/sqh17/notes/blob/master/ways/Iterator&Generator.html)
+* [esLint-报错记录](https://github.com/sqh17/notes/blob/master/ways/esLintErrorRecords.txt)

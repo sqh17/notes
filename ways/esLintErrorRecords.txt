@@ -1,0 +1,22 @@
+Duplicate key 'currentPage'     //currentPage有重复的。
+Unexpected trailing comma       //结尾不应有逗号。
+Missing space before function parentheses    //函数function前有一个空格
+Extra semicolon      //额外的分号，不加分号。
+Mixed spaces and tabs   //空格和tab混合使用，
+Unexpected tab character  //未知的tab键，
+Trailing spaces not allowed  //结尾空格不允许
+A space is required after ','  //逗号后要求有一个空格
+Expected consistent spacing //未知存在空格
+Strings must use singlequote //字符串要用单引号
+Parsing error: let is a reserved word  //let是一个保留字
+Unexpected space between function name and paren   //function和参数之间不能有空格
+Missing space before opening brace 右括号前缺一个空格
+Infix operators must be spaced  中缀操作符一定要有空格
+Block must not be padded by blank lines   一行不能空着，就是两行之间不能有空
+'idname' is assigned a value but never used  IDname被声明，但从未应用过
+
+
+
+
+
+
