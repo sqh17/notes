@@ -11,23 +11,22 @@
         * {
             box-sizing: border-box;
         }
-
+        .nav_wrap{
+            overflow-x: scroll;
+        }
         .nav_mine {
-            padding: 15px 20px;
+            padding: 15px 10px;
             border-bottom: 1px solid #aca9a7;
             height: 75px;
             overflow-x: scroll;
-            white-space: nowrap;
-            align-items: center;
             overflow-y: hidden;
-            width: 1000%;
         }
 
         .nav_mine .nav_item {
             border: 1px solid #1a110b;
             border-radius: 40px;
             color: #aca9a7;
-            margin-right: 22px;
+            margin-right: 10px;
             font-size: 24px;
             padding: 4px 18px;
             float: left;
@@ -145,7 +144,7 @@
         for (let i = 0; i < $('li').length; i++) {
             width += $('li').eq(i).outerWidth(true);
         }
-        width += 40; //由于设置了box-sizing:border-box；所以自身把padding值算进去了。 
+        width += 22; //由于width只是内容的宽度，需要加上它本身的设置的padding的值，另外2像素是因为汉字和英文的宽度不一致。 
         $('ul').width(width);
         // console.log(width);   
     </script> -->
