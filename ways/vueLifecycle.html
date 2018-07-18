@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>vue生命周期</title>
+  <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- <h1>{{message}}</h1> -->
+  </div>
+</body>
+<script>
+  var vm = new Vue({
+    el: '#app',
+    template:'<h1 style="color:red">{{message}}</h1>',
+    // render: function (createElement, context) {
+    //     return createElement('h1',`${this.message}1111`)
+    // },
+    data: {
+      message: 'Vue'
+    },
+    beforeCreate: function() {
+      console.group('------beforeCreate创建前状态------');
+      console.log(this.$el); 
+      console.log(this.$data); 
+      console.log(this.message) 
+    },
+    created: function() {
+      console.group('------created创建完毕状态------');
+      console.log(this.$el); 
+      console.log(this.$data);
+      console.log(this.message); 
+    },
+    beforeMount: function() {
+      console.group('------beforeMount挂载前状态------');
+      console.log(this.$el);
+      console.log(this.$data); 
+      console.log(this.message);  
+    },
+    mounted: function() {
+      console.group('------mounted 挂载结束状态------');
+      console.log(this.$el);    
+      console.log(this.$data); 
+      console.log(this.message); 
+    },
+    beforeUpdate: function () {
+      console.group('beforeUpdate 更新前状态===============》');
+      console.log(this.$el);  
+      console.log(this.$data); 
+      console.log(this.message); 
+    },
+    updated: function () {
+      console.group('updated 更新完成状态===============》');
+      console.log(this.$el);
+      console.log(this.$data); 
+      console.log(this.message); 
+    },
+    beforeDestroy: function () {
+      console.group('beforeDestroy 销毁前状态===============》');
+      console.log(this.$el);    
+      console.log(this.$data); 
+      console.log(this.message); 
+    },
+    destroyed: function () {
+      console.group('destroyed 销毁完成状态===============》');
+      console.log(this.$el);  
+      console.log(this.$data); 
+      console.log(this.message)
+    }
+  })
+  // vm.$mount('#app');
+  // vm.message='aaa';
+  // vm.$destroy();
+  // vm.message='11111'
+</script>
+</html>
