@@ -15,3 +15,4 @@
 * [esLint-报错记录](https://github.com/sqh17/notes/blob/master/ways/esLintErrorRecords.txt)
 * [两种方法解决横向滚动条](https://github.com/sqh17/notes/blob/master/ways/rowScroll.html)
 * [Vue的生命周期](https://github.com/sqh17/notes/blob/master/ways/vueLifecycle.html)
+* [Vue的生命周期](https://github.com/sqh17/notes/blob/master/ways/cookieUtil.js)
