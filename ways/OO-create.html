@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>面向对象-创建对象</title>
+</head>
+<body>
+    <script>
+        // 面向对象
+        //     （Object-Oriented,OO)的语言有一个标志，那就是它们都有类的的概念，而通过类可以创建任意个多个具有相同属性和方法的对象。而javascript在es6出来之前没有类的概念。，所以javascript的对象和其他语言的对象有很大的不同。
+        // 什么是对象：
+        //     简单来说，对象就是没有顺序的并且有属性和对应属性值的集合（对象的每个属性或方法都有名字，而且映射到一种值，这个值可以数据或者函数）。
+        // 对象的定义：
+        //     1:字面量：在大括号内部声明属性和对应的属性值，声明方法和其对应的方法名，可多次声明，没有顺序。
+        //     var obj = {
+        //         name:'peter',
+        //         age:18,
+        //         sayHi:function(){
+        //             console.log(`Hi`);
+        //         }
+        //     };
+        //         name就是属性，'peter'就是对应的属性值。
+        //     由此可见：字面量声明对象只能用于单方面的声明，无法进行复用。最大的缺点就是重复造轮子，产生大量的重复性代码
+        //     2:工厂模式：使用简单的函数创建对象，为对象添加属性或方法，然后返回这个对象。
+        //         无参数：
+        //         function Obj(){
+        //             var obj = new Object();
+        //             obj.name = 'peter';
+        //             obj.age = 18;
+        //             obj.sayHi = function(){
+        //                 console.log(`Hi`);
+        //             }
+        //             return obj;
+        //         }
+        //         var person = Obj();
+        //         很显然：该声明方式很单一，和字面量差不多，都是单一声明，只能适合同一类型同一属性可以重复调用的对象;同一类型的但不同属性的不能调用，只能重新再次声明。
+        //         有参数：   
+        //         function Obj(name, age){
+        //             var obj = new Object();
+        //             obj.name = name;
+        //             obj.age = age;
+        //             obj.sayHi = function(){
+        //                 console.log(`Hi`);
+        //             }
+        //             return obj;
+        //         }
+        //         var person = Obj('peter', 18);
+        //         工厂模式的传参数声明方式，可以无数次调用该函数来声明某个对象，解决了创建多个相似对象的问题，但却没有解决对象识别的问题（即怎样知道一个对象的类型）。
+        //     3:构造函数模式：通过创建函数，将属性和方法赋给this对象。通过new实例一个对象，进而调用该函数，this指向该对象。
+        //         function Person(name,age){
+        //             this.name = name;
+        //             this.age = age;
+        //             this.sayHi = function(){
+        //                 console.log(this.name);
+        //             }
+        //         }
+        //         var peter = new Person('peter',18);
+        //         var tom = new Person('tom',22);
+        //         该声明方式是类似与工厂模式，但和工厂模式有所不同，它把属性和方法都定义给了this，每个创建新的实例，都可以使用该构造函数，实现了复用，但是构造函数有个缺点，就是其声明的方法本身是个函数，每个实例调用方法都是一样的，所以把方法定义到构造函数外面，作为全局函数，这样实现了方法的复用，但新问题又来了，如果这个实例要调用很多方法，岂不是写很多方法，这样导致的后果就是内存空间占用，浪费资源。
+        //     tip：new操作符进行了哪些步骤：
+        //         1.创建一个新对象，
+        //         2.将构造函数的作用域赋给新对象（this指向新对象).
+        //         3.执行构造函数的代码（为新对象添加属性或方法）.
+        //         4.返回新对象。
+        //     4:原型模式：创建一个构造函数,将属性和方法放到该函数的原型上，实现实例调用其原型上的所有属性和方法。
+        //         function Person(){
+        //         }
+        //         Person.prototype.name = 'peter';
+        //         Person.prototype.age = 18;
+        //         Person.prototype.sayHi = function(){
+        //             console.log(this.name);
+        //         }
+        //         var peter = new Person();
+
+        //     每个函数都有prototype属性，这个属性就是一个指针，指向一个对象，这个对象的用途是包含由特定类型的所有实例所共享的属性和方法，使用原型对象就可以让所有实例对象均包含这些属性及方法。
+        //     原型模式声明方式是利用构造函数的壳子，将属性和方法写到其原型上，这样避免了占用内存空间，但是从例子上看，如果多个实例的话，都会指向同一个对象，更改该实例所在的原型对象的值，会直接改变原有的值，如下例子：
+        //     Person.prototype.name = 'tom';
+        //     Person.prototype.age = 22;
+        //     这样的话缺点很明显，写了实例tom的属性和方法，就改变了实例peter的属性和方法。
+        //     5:混合模式（组合使用构造函数模式和原型模式）：利用构造函数写对象的属性，利用原型模式写对象的方法。
+        //         function Person(name, age){
+        //             this.name = name;
+        //             this.age = age;
+        //         }
+        //         Person.prototype.sayHi = function(){
+        //             console.log(`Hi,我叫${this.name}`);
+        //         }
+        //         var peter = new Person('peter', 18);
+        //         peter.sayHi();
+        //     混合模式是最常见创建对象的方式，这样的好处是复用了对象的属性，而且方法放到了原型上，不管声明多少个方法，都不占用内存并且互不影响。说缺点吧，emmm，那就是在除js开发人员开发这种模式很另类。。。
+        //     6:动态原型模式：在构造函数模式上，将所有信息都写在构造函数里，包括原型上的方法。
+        //         function Person(name,age){
+        //             this.name = name;
+        //             this.age = age;
+        //             if(typeof this.sayHi != 'function'){
+        //                 Person.prototype.sayHi = function(){
+        //                     console.log(`Hi,我叫${this.name}`);
+        //                 }
+        //             }
+        //         }
+        //     它把所有信息都封装到了构造函数内，而通过在构造函数中初始化原型，又保持了同时使用构造函数和原型的优点。通过检查某个应该存在的方法是否有效，来决定是否初始化原型。
+        //     大白话就是：如果去掉if的话，每new一次（即每当一个实例对象生产时），都会重新定义一个新的函数，然后挂到per.prototype.say上，而实际上，只需要定义一次就够了，因为所有的实例都会共享此属性的，所以如果去掉if的话，会造成没有必要的时间和空间的浪费，而加上if后，只在new第一次实例化时会定义say方法，之后都不会再定义了。
+        //     这种方式创建对象是最好又最有效的方式，推荐使用。
+        //     ps！使用动态原型模式，就不能使用字面量重写原型，如果在创建实例的情况下，重写原型，会切断现有实例与新原型的联系。
+        //     7:寄生构造函数模式：在工厂模式（有参数）的基础上，new出一个实例。
+        //         function Person(name,age){
+        //             var o = new Object();
+        //             o.name = name;
+        //             o.age = age;
+        //             o.sayHi = function(){
+        //                 console.log(this.name);
+        //             }
+        //             return o;
+        //         }
+        //         var peter = new Person('peter',18);
+        //         peter.sayHi();
+        //     此模式除了new实例外其他的都和工厂模式一样，构造函数在不返回值的情况下，默认会返回新实例，而通过在构造函数的末尾添加一个return语句，可以重写调用构造函数时返回值。
+        //     简单的说，如果没有return，和普通的构造函数一致，如果有return，它就返回想要返回的值。
+        //     ps：构造函数返回的对象和构造函数外部创建的对象没有什么不同，不能依赖instanceof操作符来确定对象的类型。所以！不提倡用该模式。
+        //     8:稳妥构造函数模式：在一些安全的环境中(禁止使用this和new)，或者防止数据被其他应用程序改动时使用。在寄生构造函数的基础上，构造函数内部不使用this，外部不使用new.
+        //         function Person(name,age){
+        //             var o = new Object();
+        //             o.name = name;
+        //             o.age = age;
+        //             o.sayHi = function(){
+        //                 console.log(name);
+        //             }
+        //             return o;
+        //         }
+        //         var peter = Person('peter',18);
+        //         peter.sayHi(); // peter
+        //     该模式是由道格拉斯.克罗克福德发明的稳妥对象，所谓的稳妥对象就是指的没有公共属性，而且其方法也不应用this的对象。
+        //     在上面的例子上，peter保存的就是一个稳妥对象，除了sayHi方法外，没有别的方式能够访问到其数据成员，虽然外部能够给这个对象添加新的方法或数据成员，但也不可能有别的方法传回到构造函数内的原始数据。
+        //     所以这个模式适合在安全模式下引用。
+
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>面向对象-原型与原型链</title>
+</head>
+<body>
+    <script>
+        // 原型与原型链
+        // 什么是原型：
+        //     原型有两种形式：prototype和__proto__；对应的呈现方式不同。
+        //     prototype：是函数的一个属性，这个属性的值是一个对象。所以一切的函数都有原型，这个原型就是prototype。
+        //     __proto__：是对象的一个属性，同样的属性值也是一个对象。（但__proto__不是一个规范属性，只是部分浏览器实现了此属性，对应的标准属性是[[prototype]]）所以一切对象都有标准属性。
+        //     ps:函数没有__proto__属性，同样的，对象也没有prototype属性。
+
+        //     var obj = {name:'peter'};
+        //     console.log(obj.__proto__) // {constructor: ƒ, __defineGetter__: ƒ, __defineSetter__: ƒ, hasOwnProperty: ƒ, __lookupGetter__: ƒ, …}
+
+        //     var fn = function(){this.name = 'peter'};
+        //     console.log(fn.prototype) // {constructor: ƒ}
+            
+        //     所有的函数的默认原型都是Object的实例，因此默认原型都会包含一个内部指针，指向Object.prototype，所以所有的自定义类型都含有toString(),valueOf()等默认方法的根本原因。
+        // 理解原型对象：
+        //     在高程中，有句原话：无论什么时候，只要创建了一个函数，就会根据一组特定的规则为该函数创建一个prototype属性，这个属性指向函数的原型对象。在默认情况下，所有的原型对象都会自动获得一个constructor（构造函数）属性，这个属性包含一个指向prototype属性所在函数的指针。
+        //     简单来说：只要创建了一个函数，都会有一个prototype属性，属性值就是一个对象，这个对象里有一个属性constructor，这个值就是该函数。
+        //     constructor是一个构造器。一般指向的是其构造函数。
+        //     var fn = function(){this.name = 'peter'};
+        //     console.log(fn.prototype) // {constructor: ƒ}   
+        //     console.log(fn.prototype.constructor == fn)  // true
+
+        //     对于__proto__，只要是对象，都有constructor属性。在创建的方式中，constructor所指向的构造函数不一样。
+        //     1 字面量创建对象：
+        //     字面量创建对象，其中__proto__的constructor属性指向的构造函数是原始对象函数Object()。
+        //     var obj = {name:'peter'}
+        //     console.log(obj.__proto__.constructor) // ƒ Object() { [native code] }
+
+        //     console.log(obj.__proto__.constructor == Object);  // true
+        //     console.log(obj.constructor == Object )  // true
+        //     console.log(obj.__proto__.constructor == obj.constructor) // true
+
+        //     2 构造函数创建对象：
+        //     所谓的构造函数：就是先创建一个函数，new实例化一个对象，函数里的this指向这个对象。
+        //     构造函数是个函数，有prototpe属性，值是个对象，对象里有个constructor属性，指向这个函数Preson
+        //     实例化的对象peter是一个对象，有__proto__属性，值是个对象，对象里constructor属性，指向这个构造函数Person。
+        //     两个constructor所对应的构造函数是相等的,因此实例化的__proto__ 和 构造函数的prototype是相等的。
+        //     function Person(name,age){
+        //         this.name = name;
+        //         this.age = age;
+        //         this.sayHi = function (){
+        //             console.log(this.name);
+        //         }
+        //     }
+        //     var peter = new Person('peter','male');
+        //     console.log(Person.prototype.constructor == peter.__proto__.constructor)  // true
+        //     console.log(Person.prototype == peter.__proto__) // true
+
+        //     3 Object.create() 创建对象
+        //     Object.create()是es5新增的一个方法，创建一个新对象，使用现有的对象来提供新创建的对象的__proto__。
+        //     注意！这个创建的对象的__proto__和原对象的__proto__不一样，这说明了新创建的对象只是复制愿对象的原型，但是是一个独立的原型。
+        //     var obj = {};
+        //     var male = Object.create(obj);
+        //     console.log(male.__proto__.constructor) // ƒ Object() { [native code] }
+        //     male.name = 'tom';
+        //     console.log(male); //  {name:'tom'}
+        //     console.log(obj); //  {name:'peter'}
+        //     console.log(male.__proto__ == obj.__proto__);  // false
+
+        // 原型链：
+        //     其基本思想是：利用原型让一个引用类型继承另一个引用类型的属性和方法。
+        //     当试图得到一个对象的某个属性时，如果这个对象本身没有这个属性，那么会去它的__proto__（即它的构造函数的prototype）中寻找，如果该__proto__上没有这个属性，就去__proto__的属性上去找（__proto__.__proto__),依次往下找，找到就使用，找不到就继续往下找，到最上层都没有找到就返回null。
+        //     这样的形式就叫原型链。 总结如下：由于__proto__是任何对象都有的属性，所以会形成一条__proto__连起来的链条，递归访问__proto__，到最后若没有找到，则返回一个null。
+        //     例子如下：(为了强调原型链，所以采用了混合模式创建对象)
+        //     function Person(name,age){
+        //         this.name = name;
+        //         this.age = age;
+        //     }
+        //     Person.prototype.sayHi = function(){
+        //         console.log(this.name);
+        //     }
+        //     var peter = new Person('peter','male');
+        //     peter.sayName = function(){
+        //         console.log('我叫17号')
+        //     }
+        //     peter.sayName();
+        //     peter.sayHi();
+        //     peter.toString();
+        //     peter.toGo();
+
+        //     这个例子要调用三个方法，。先描述怎么拿到该方法：
+        //     1.peter.sayName();    // 我叫17号
+        //     对象本身写的方法，是挂载了对象的属性上，所以不用通过原型链的方式直接就能拿到该方法。
+            
+        //     2.peter.sayHi();     // peter
+        //     该对象上没有sayHi的方法，=> 该对象的__proto__去找  => peter.__proto__(由于peter.__proto__ = Person.prototype) => 该prototype上有sayHi属性，调用，查找结束。
+            
+        //     3.peter.toString();   // "[object Object]"
+        //     该对象上没有toString的方法，=> 该对象的__proto__去找 => peter.__proto__ => 该__proto__上没有该属性 => peter.__proto__.__proto__ => 在该原型上找到toString(),调用，结束。
+
+        //     4.peter.toGo();
+        //     该对象上没有toGo的方法，=> 该对象的__proto__去找 => peter.__proto__ => 该__proto__上没有该属性 => peter.__proto__.__proto__ => 在该原型上没有该属性 => peter.__proto__.__proto__.__proto__ => 返回null => 没有该属性，直接报错。
+            
+        //     从上面的例子就可以得知，原型链就是通过__proto__连起来的链子，可以依次查找，找到就调用，找不到直接undefined或报错。这就是原型链。
+
+
+        
+    </script>
+</body>
+</html>

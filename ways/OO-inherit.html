@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>面向对象-继承</title>
+</head>
+<body>
+    <script>
+        // 面向对象继承
+        //     许多语言都支持两种继承方式：接口继承和实现继承。
+        //     接口继承只继承方法签名（方法签名由方法名称和一个参数列表（方法的参数的顺序和类型）组成，java所属）。
+        //     而js中的函数没有签名，所以无法实现接口继承，只能实现实现继承，而实现继承主要依靠原型以及原型链实现的。
+
+        // 假如我们让原型对象等于另一个类型的实例，结果会怎么样呢？显然，此时的原型对象将包含一个指向另一个原型的指针，相应地，另一个原型中也包含着一个指向另一个构造函数的指针。假如另一个原型又是另一个类型的实例，那么上述关系依然成立，如此层层递进，就构成了实例与原型的链条。这就是所谓原型链的基本概念
+        // js的继承是依据原型以及原型链来实现的，回顾前几节的知识，可以得知，一个构造函数创建出来的实例，都可以访问到该构造函数的的属性，方法，还有构造函数的原型的属性以及方法。
+
+        // 首先 先了解构造函数、原型和实例的关系：每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个指向原型对象的内部指针。
+        // 通俗的说：实例通过内部指针可以访问到原型对象，原型对象通过constructor指针，找到其构造函数。
+        // 那么js中的继承的基本思路就是利用原型以及原型链的特性，改变内部指针的指向，进而实现继承。
+        // 原型链继承：
+        // js所有继承都基于原型链继承。
+        // function Animal(){
+        //     this.type = 'animal';
+        // }
+        // Animal.prototype.feature = function(){
+        //     alert(this.type);
+        // }
+        // function Cat(name,color){
+        //     this.name = name;
+        //     this.color = color;
+        // }  
+        // Cat.prototype = new Animal();
+
+        // var tom = new Cat('tom','blue');
+        // console.log(tom.name);  // 'tom'
+        // console.log(tom.color); // 'blue'
+        // console.log(tom.type);  // 'animal'
+        // tom.feature()    // 'animal'    
+        // 这个例子中有创建了两个构造函数，Animal构造函数有一个type属性和feature方法。Cat构造函数有两个属性：name和color。实例化了一个Animal对象，并且挂载到了Cat函数的原型上，相当于重写了Cat的原型，所以Cat函数拥有Animal函数的所有属性和方法。
+        // 然后又Cat函数new出一个tom对象，tom对象拥有Cat函数的属性和方法，因此也拥有Animal的属性和方法。
+        // 通过上面的例子，可以总结：通过改变构造函数的原型，进而实现继承。
+
+
+        // ps:
+        // 1 如果在继承原型对象之前，产生的实例，其内部指针还是只想最初的原型对象。
+        // function Animal(){
+        //     this.type = 'animal';
+        // }
+        // Animal.prototype.feature = function(){
+        //     alert(this.type);
+        // }
+        // function Cat(name,color){
+        //     this.name = name;
+        //     this.color = color;
+        // }
+        // Cat.prototype.type = 'cat';
+        // Cat.prototype.feature = function(){
+        //     alert(this.type);
+        // }    
+        // var tom = new Cat('tom','blue');
+        // Cat.prototype = new Animal();// 先实例化对象，再重写原型,结果指针还是指向最初的原型
+        // console.log(tom.name);  // 'tom'
+        // console.log(tom.color); // 'blue'
+        // console.log(tom.type);  // 'cat'  ----- 是最初的type
+        // tom.feature()    // 'cat'
+
+        // 从打印结果来看：new出来的tom对象，在Cat.prototype重写原型之后，依然还是指向没重写的原型上。
+
+        // 2 在通过原型链实现继承时，不能使用对象字面量创建原型方法。因为这样做就会重写原型链。
+        // function Animal(){
+        //     this.type = 'animal';
+        //     this.size = 'small'
+        // }
+        // Animal.prototype.feature = function(){
+        //     alert(this.type);
+        // }
+        // function Cat(name,color){
+        //     this.name = name;
+        //     this.color = color;
+        // }  
+        // Cat.prototype = new Animal();
+        // // 使用字面量添加新方法，会导致上一行代码无效
+        // Cat.prototype = {
+        //     type:'cat',
+        //     feature:function(){
+        //         alert(this.type)
+        //     }
+        // }
+        // var tom = new Cat('tom','blue');
+        // console.log(tom.name);  // 'tom'
+        // console.log(tom.color); // 'blue'
+        // console.log(tom.type);  // 'cat'
+        // tom.feature()    // 'cat'  
+        // console.log(tom.size)  // undefined   ----- tom拿不到size属性
+
+        // 由打印结果可知：tom这个对象拿不到将继承的size属性，所以用字面量添加属性或方法，会切断将继承的与实例之间的联系。
+
+        // 原型链继承并不是完美的，用原型链实现继承，有一定的问题存在。
+        // 1 首先 值类型与引用类型在参数传递时，方式是不一样的
+        // 值类型 将值本身拷贝一份赋值给其他变量，若该值发生变化，也不会影响到其他变量
+        // 引用类型 将指针（内存中的地址）拷贝一份 赋值给其他变量；若内存中的地址内容发生改变，其他变量内的内容也会发生变化    
+        // var a = 11;
+        // var b = a;
+
+        // console.log(a,b) // 11 11
+        // b = 22;
+        // console.log(a,b) // 11 22
+
+
+        // var obj ={
+        //     name:'peter',
+        //     age:18
+        // };
+        // var m = obj;
+        // console.log(m) // {name: "peter", age: 18}
+        // m.name = 'tom';
+        // m.age = 22;
+        // console.log(obj) // {name: "tom", age: 22}
+
+        // 同样的道理，在原型链继承中，包含引用类型值的原型属性会被所有实例共享，如果某一个实例更改了属性或方法，会影响到原型属性，进而影响所有的实例。
+
+        // function Animal(){
+        //     this.type = 'animal';
+        //     this.size = ['large','small'];
+        // }
+        // Animal.prototype.feature = function(){
+        //     alert(this.type);
+        // }
+        // function Cat(name,color){
+        //     this.name = name;
+        //     this.color = color;
+        // }  
+        // Cat.prototype = new Animal();
+
+        // var tom = new Cat('tom','blue');
+        // var peter = new Cat('peter','yellow')
+        // console.log(tom.size);  // ["large", "small"]
+        // tom.size.push('middle');
+        // console.log(tom.size);  // ["large", "small", "middle"]
+        // console.log(tom.size);  // ["large", "small", "middle"]
+
+        // 通过打印结果可知，在一个实例添加一个颜色时，同时也影响了其他实例。
+
+        // 2 在高程上说还有个问题，在创建子类型（Cat）的实例时，不能向超类型（Animal）的构造函数中传递参数。意思就是没有办法在不影响所有对象实例的情况下，给超类型（Animal）的构造函数传递参数
+        // function Animal(type){
+        //     this.type = type;
+        //     this.size = ['large','small'];
+        // }
+        // Animal.prototype.feature = function(){
+        //     alert(this.type);
+        // }
+        // function Cat(type,name,color){
+        //     this.name = name;
+        //     this.color = color;
+        // }  
+        // Cat.prototype = new Animal();
+
+        // var tom = new Cat('animal','tom','blue');
+        // console.log(tom.type); // undefined
+        // 当给被继承的构造函数传参数时，发现为undefined，所以原型链继承无法传参数。
+
+        // 因此原型链继承有这两个问题，所以在实践中很少使用原型链继承。
+
+        // 借用构造函数继承
+        // 借用构造函数继承的基本思想：就是在子类型构造函数的内部使用 apply() 和 call() 方法调用超类型构造函数里的属性或方法。
+        // ps：函数只不过是在特定环境中执行代码的对象，因此通过使用 apply() 和 call() 方法也可以在（将来）新创建的对象上执行构造函数。
+
+        // function Animal(name){
+        //     this.name = name;
+        //     this.size = ["large", "small"];
+        // }
+        // Animal.prototype.say = function(){
+        //     alert(this.name);
+        // }
+        // function Cat(name,age){
+        //     Animal.call(this,name);
+        //     this.age = age;
+
+        // }
+        // var tom = new Cat('tom',18);
+        // var peter = new Cat('peter',22);
+        // console.log(tom); // {name: "tom", size: Array[2], age: 18};
+        // console.log(peter); // {name: "peter", size: Array[2], age: 22};
+
+        // tom.size.push('middle');
+        // console.log(tom.size);  // ["large", "small", "middle"]
+        // console.log(peter.size); // ["large", "small"]
+
+        // tom.say();  // Uncaught TypeError: tom.say is not a function
+
+        // 由上述打印的结果，我们可以得出以下结论：
+        // 1 可以往超类型（Animal）传参数，Animal可以接受一个参数，将参数赋值给一个属性，所以在Cat构造函数内部调用Animal时，就是给Cat的实例设置该属性。
+        // ps：为了确保Animal 构造函数不会重写Cat的属性，可以在调用超类型构造函数后，再添加应该在子类型中。
+        // function Cat(name,age){
+        //     Animal.call(this,name);
+        //     this.age=age;
+        //     this.name = 'jerry'; // 如果该属性写在Animal.call(this,name);之前的话，没有作用，还是被调用的给覆盖了
+        // }
+        // 2 因为是子类型调用超类型，所以每个子类型调用的都是超类型的初始化的属性或内部方法。每个实例都互不影响。
+        // 3 超类型的原型上的方法对子类型不可见，不可被调用。
+
+        // 借用构造函数继承最主要的就是子类型利用call或apply调用超类型的方式去使用该方法或属性。
+        // 但是很显然也有缺点：
+        // 1 由于每个子类型声明自己属性或方法，而且别人不能使用，所以不能复用。
+        // 2 无法调用超类型的原型上的方法。
+
+        // 组合继承
+        // 组合继承是采用了原型链继承和借用构造函数继承的方式。
+        // 其基本思想就是：原型链继承实现对原型属性和方法的继承，借用构造函数继承实现对实例属性的继承。
+        // function Animal(name){
+        //     this.name = name;
+        //     this.size = ["large", "small"];
+        // }
+        // Animal.prototype.say = function(){
+        //     alert(this.name);
+        // }
+        // function Cat(name,age){
+        //     Animal.call(this,name); // 调用Animal的属性
+        //     this.age = age;
+
+        // }
+        // Cat.prototype = new Animal(name); // 调用Ainaml的原型上的方法。
+        // Cat.prototype.constructor = Cat;  // 保证Cat的原型上的构造器对象还是指向Cat。
+        // Cat.prototype.skill = function(){
+        //     alert('running');
+        // }
+        // var tom = new Cat('tom',18);
+        // var peter = new Cat('peter',22);
+        // console.log(tom); // {name: "tom", size: Array[2], age: 18};
+        // console.log(peter); // {name: "peter", size: Array[2], age: 22};
+
+        // tom.size.push('middle');
+        // console.log(tom.size);  // ["large", "small", "middle"]
+        // console.log(peter.size); // ["large", "small"]
+
+        // tom.say(); // tom
+        // peter.say(); // peter
+
+        // 上面的例子：在Cat构造函数里使用call调用Animal里属性，并且在Cat的原型上实例化Animal，进而调用Animal原型上的方法。
+        // ps:子类型扩展方法时要放在原型链继承之后，因为原型链继承后，重写了其constructor属性，导致没继承前的属性或方法失效。
+        // Cat.prototype = new Animal(name); // 调用Ainaml的原型上的方法。
+        // Cat.prototype.constructor = Cat;  // 保证Cat的原型上的构造器对象还是指向Cat。
+        // Cat.prototype.skill = function(){   // 该一步要放在调用Animal原型方法之后，如果放在前面，会导致其skill方法失效。
+        //     alert('running');
+        // }
+        // 这样融合两者的优点，摒弃了缺点。成为最常用的继承方式。
+        // 但是也有一个不足：无论什么情况下都会调用两次超类型构造函数：1 在创建子类型原型的时候，2 在子类型构造函数内部。
+
+        // 原型式继承
+        // 原型式继承是道格拉斯.克罗克福德提出的继承方式，其基本思想是：借助原型可以基于已有的对象创建新对象，同时不必因此创建自定义类型。主要函数如下：
+        // function object(o){
+        //     function F(){};
+        //     F.prototype = o;
+        //     return new F();
+        // }
+        // 这个函数主要是在内部创建了一个构造函数，该构造函数的原型就是传来的对象（继承），并且返回这个构造函数的实例。
+        // 这种方式的要求是必须有一个对象，作为另一个对象的基础，通过对象的浅拷贝的方式，创建这个对象的副本作为新对象使用，在该基础上进行修改。
+        // var peter = {
+        //     name:'peter',
+        //     age:18,
+        //     say:function(){
+        //         alert(this.name);
+        //     }
+        // }
+        // var tom = object(peter);
+        // console.log(tom);  // F {}
+        // tom.say();  // peter
+
+        // tom.name = 'tom';
+        // tom.age = 22;
+        // console.log(tom);  // F {name: "tom", age: 22}
+        // tom.say();  // tom
+
+        // 由上述结果可知，新创建的对象，返回的是对象，但是打印tom.say()，出现的是peter，说明新对象调用了原型上的属性和方法。随后在修改后新对象的属性时，会返回新的属性和方法。
+        // 但是显然易见：此模式就是新对象是利用原要继承的对象挂载到原型上的原理，去使用原型上的属性和方法，然后修改其属性和方法。同样如果不修改属性值，会被所有实例共享。
+        // 主要适用于：在没必要兴师动众的创建构造函数，而只想让一个对象与另一个对象保持类似的情况下，可以使用原型式继承。
+        // 在es5出来一个新方法，可以替代克罗克福德创建的函数: Object.create()，前提条件只传一个参数情况下。
+        // var tom = Object.create(peter);
+        // console.log(tom);  // F {}
+        // tom.say();  // peter
+
+        // tom.name = 'tom';
+        // tom.age = 22;
+        // console.log(tom);  // F {name: "tom", age: 22}
+        // tom.say();  // tom
+
+        // tip:
+        // Object.create()
+        // 接受两个参数：
+        //     1.必需。  要用作原型的对象。可以为 null。
+        //     2.可选。  包含一个或多个属性描述符的 JavaScript 对象。“数据属性”是可获取且可设置值的属性。  
+        //     数据属性描述符包含 value 特性，以及 writable、enumerable 和 configurable 特性。如果未指定最后三个特性，则它们默认为 false。  
+        // 返回值：一个具有指定的内部原型且包含指定的属性（如果有的话）的新对象。
+
+        // 寄生式继承
+        // 寄生式继承也是克罗克福德提出的，并在原型式继承上进行推广的。其基本思想就是：即创建一个仅用于封装继承过程的函数，该函数在内部以某种方式来增强对象，最后返回这个对象。
+        // 该继承方式最大的特点就是封装成一个函数，在内部扩展对象的属性或方法。
+        // function inherit(o){
+        //     var clone = Object.create(o);  // 通过调用函数创建一个对象
+        //     clone.type = 'people';    // 扩展对象属性或方法
+        //     clone.say=function(){
+        //         alert(this.name);
+        //     }
+        //     return clone;
+        // }
+        // var peter = {
+        //     name:'peter'
+        // }
+        // var perterSon = inherit(peter);
+        // console.log(perterSon.type);    // people
+        // perterSon.say();  // peter
+        // inherit函数中返回一个新创建的对象，这个对象有扩展的方法和属性，另一个对象在调用这个方法时会继承扩展属性和方法。
+        // 由此可见，扩展方法已经写死了，所以不能不复用，进而降低效率。
+        // 使用情况：在主要考虑对象而不是自定义类型和构造函数的情况下，可以采用寄生式继承。
+
+        // 寄生组合式继承
+        // 在组合继承的方式中，有一个不足，就是多次调用超类型构造函数，为了避免这个情况，寄生组合式继承就出现了。
+        // 其基本思路是：通过借用构造函数来继承属性，用原型链的混成形式来继承方法。不必为了指定子类型的原型而调用超类型的构造函数。
+        // 最简单的说法：使用寄生式继承来继承超类型的原型，然后将结果指定给子类型的原型。
+        // function inheritPrototype(sub,supers){
+        //     var clone = Object.create(supers.prototype);
+        //     clone.constructor = sub;
+        //     sub.prototype = clone;
+        // }
+        // 这个函数实现了三个步骤：（先传两个参数，一个子类型构造函数sub，一个超类型构造函数super。）
+        //     1 创建超类型原型的一个副本。
+        //     2 为创建的副本添加constructor属性，从而弥补重写原型而失去的默认的constructor属性。
+        //     3 将新创建的对象（副本）赋值给子类型的原型。
+
+        // function Animal(name){
+        //     this.name = name;
+        //     this.size = ["large", "small"];
+        // }
+        // Animal.prototype.say = function(){
+        //     alert(this.name);
+        // }
+        // function Cat(name,age){
+        //     Animal.call(this,name); 
+        //     this.age = age;
+
+        // }
+        // inheritPrototype(Cat,Animal);
+        // Cat.prototype.skill = function(){
+        //     alert('running')
+        // }
+        // var tom = new Cat('tom',18);
+        // console.log(tom); // Cat {name: "tom", size: Array(2), age: 18}
+        // tom.say();   // tom
+        // tom.skill();  // running
+
+        // 由上述可以得知：也能实现组合继承所实现的方案，只不过只调用了一次超类型构造函数，提高了效率，同时原型链也能保持不变，能够使用instanceof和isPrototypeOf()方法,组合继承也是一样的。
+        // console.log(tom instanceof Cat) // true;
+        // console.log(tom instanceof Animal) // true
+        // 所以寄生组合式继承是引用类型最理想的继承方式。
+
+        // tip：
+        // 1 instanceof 
+        // 该运算符用来检测 constructor.prototype 是否存在于参数 object 的原型链上。返回值是一个bool。
+        // obj instanceof Object // 实例obj在不在Object构造函数中
+        // 意思就是：检测Object.prototype是否存在于参数obj的原型链上。
+
+        // 2 isPrototypeOf() 
+        // 该函数用于指示对象是否存在于另一个对象的原型链中。如果存在，返回true，否则返回false。
+        // 该方法属于Object对象，由于所有的对象都"继承"了Object的对象实例，因此几乎所有的实例对象都可以使用该方法。
+
+        
+    </script>
+</body>
+</html>

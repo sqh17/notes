@@ -16,3 +16,6 @@
 * [两种方法解决横向滚动条](https://github.com/sqh17/notes/blob/master/ways/rowScroll.html)
 * [Vue的生命周期](https://github.com/sqh17/notes/blob/master/ways/vueLifecycle.html)
 * [Vue的生命周期](https://github.com/sqh17/notes/blob/master/ways/cookieUtil.js)
+* [面向对象--创建对象](https://github.com/sqh17/notes/blob/master/ways/OO-create.html)
+* [面向对象--原型与原型链](https://github.com/sqh17/notes/blob/master/ways/OO-proto.html)
+* [面向对象--继承](https://github.com/sqh17/notes/blob/master/ways/OO-inherit.html)
