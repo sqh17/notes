@@ -20,5 +20,4 @@
 * [面向对象--原型与原型链](https://github.com/sqh17/notes/blob/master/ways/OO-proto.html)
 * [面向对象--继承](https://github.com/sqh17/notes/blob/master/ways/OO-inherit.html)
 * [es6学习笔记--类class和继承](https://github.com/sqh17/notes/blob/master/ways/class.md)
-* [面试](https://github.com/sqh17/notes/blob/master/ways/interview.md)
 
