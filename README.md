@@ -21,4 +21,5 @@
 * [面向对象--继承](https://github.com/sqh17/notes/blob/master/ways/OO-inherit.html)
 * [es6学习笔记--类class和继承](https://github.com/sqh17/notes/blob/master/ways/class.md)
 * [arguments对象](https://github.com/sqh17/notes/blob/master/ways/arguments.md)
+* [正则](https://github.com/sqh17/notes/blob/master/ways/reg.md)
 
