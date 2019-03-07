@@ -23,5 +23,5 @@
 * [arguments对象](https://github.com/sqh17/notes/blob/master/ways/arguments.md)
 * [正则](https://github.com/sqh17/notes/blob/master/ways/reg.md)
 * [Promise](https://github.com/sqh17/notes/blob/master/ways/promise.md)
-
+* [中文名字转拼音](https://github.com/sqh17/notes/blob/master/ways/convert.js)
 
