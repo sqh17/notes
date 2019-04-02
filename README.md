@@ -26,4 +26,4 @@
 * [中文名字转拼音](https://github.com/sqh17/notes/blob/master/ways/convert.js)
 * [0228-0308的笔记](https://github.com/sqh17/notes/blob/master/ways/0305.md)
 * [0311-0312的笔记](https://github.com/sqh17/notes/blob/master/ways/0312.md)
-
+* [0313-0318的笔记](https://github.com/sqh17/notes/blob/master/ways/0313.md)
