@@ -27,3 +27,4 @@
 * [0228-0308的笔记](https://github.com/sqh17/notes/blob/master/ways/0305.md)
 * [0311-0312的笔记](https://github.com/sqh17/notes/blob/master/ways/0312.md)
 * [0313-0318的笔记](https://github.com/sqh17/notes/blob/master/ways/0313.md)
+* [0319-0409的笔记](https://github.com/sqh17/notes/blob/master/ways/03180408.md)
