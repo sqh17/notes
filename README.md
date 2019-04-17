@@ -29,3 +29,4 @@
 * [0313-0318的笔记](https://github.com/sqh17/notes/blob/master/ways/0313.md)
 * [0319-0409的笔记](https://github.com/sqh17/notes/blob/master/ways/03180408.md)
 * [0409-0416的笔记](https://github.com/sqh17/notes/blob/master/ways/04090411.md)
+* [es6学习笔记--async笔记](https://github.com/sqh17/notes/blob/master/ways/async.md)
