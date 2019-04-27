@@ -1,14 +1,14 @@
 #### 前提摘要
   尤大大的vue3.0即将到来，虽然学不动了，但是还要学的啊，据说vue3.0是基于proxy来进行对值进行拦截并操作，所以es6的proxy也是要学习一下的。
 
-#### 什么是proxy
+#### 一 什么是proxy
   Proxy 对象用于定义基本操作的自定义行为（如属性查找，赋值，枚举，函数调用等） --摘自MDN
   Proxy 用于修改某些操作的默认行为，等同于在语言层面做出修改，所以属于一种“元编程”（meta programming），即对编程语言进行编程。 --摘自阮一峰的ES6入门
   Proxy 这个词的原意是代理，用在这里表示由它来“代理”某些操作，可以译为“代理器”。
   Proxy 也可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。
   总结来说：Proxy对象就是要在目标对象上设置自定义的规则和方法，让它按照自己定义的规则去实行某些操作。
 
-#### Proxy声明
+#### 二 Proxy声明
   ES6 原生提供 Proxy 构造函数，用来生成 Proxy 实例，所以可以按照构造函数创建对象的形式去实例化一个Proxy对象。
 
     var proxy = new Proxy({},{})
@@ -33,8 +33,8 @@
   * 第二个参数：handler，配置对象，用来定制拦截行为，对于每一个被代理的操作，需要提供一个对应的处理函数，该函数将拦截对应的操作。
     Proxy支持的拦截操作，有13种，使用方法可以参考 [阮一峰的ES6入门](http://es6.ruanyifeng.com/#docs/proxy)
 
-#### 常见情况
-##### 当目标对象为空时
+#### 三 常见情况
+##### 3.1 当目标对象为空时
   var proxy = new Proxy({},handler)
   这样直接代表着，拦截的对象是空的，所以直接对proxy对象进行操控。
 
@@ -51,7 +51,7 @@
   上面的代码说明了：target是个空对象，但是操作了proxy，也影响不了target
   ps：要使得Proxy起作用，必须针对Proxy实例进行操作，而不是针对目标对象进行操作
 
-##### 当拦截对象为空时
+##### 3.2 当拦截对象为空时
   var proxy = new Proxy(target,{})
   handler没有设置任何拦截，那就等同于直接通向原对象。
 
@@ -64,7 +64,7 @@
     
   上面的代码说明了：handler是一个空对象，没有任何拦截效果，访问proxy就等同于访问target
 
-#### 方法解析
+#### 四 方法解析
   Proxy实例化的对象默认带有get和set方法。也可以在这些基础上进行拦截操作，其他的13种方法也是如此。
   1. get() 用于拦截某个属性的读取（read）操作，换句话讲，就是在读取目标对象的属性之前，操作该属性。
     参数解释：
@@ -89,7 +89,7 @@
 
             proxy.name // "张三"
             proxy.age // Property "age" does not exist.
-  参考阮一峰的例子，上述说明了，如果输入目标函数不存在的属性，就直接报错。
+        参考阮一峰的例子，上述说明了，如果输入目标函数不存在的属性，就直接报错。
 
   2. set() 用来拦截目标对象的赋值（write）操作
     参数解释：
@@ -114,7 +114,7 @@
             proxy.age = 25
             console.log(typeof proxy.name) // string
             console.log(typeof proxy.age) // string
-  上面例子就是拦截对象是不是字符串，不是字符串的话会强制转化为字符串。
+      上面例子就是拦截对象是不是字符串，不是字符串的话会强制转化为字符串。
 
   3. apply() 用来拦截函数的调用、call和apply操作
     参数解释：
@@ -137,7 +137,7 @@
             }
             var proxy = new Proxy(target,handler)
             console.log(proxy(1,2)) // 30
-  上面的例子，就是目标函数是要传两个参数，并且返回之和，拦截目标做的就是改变目标对象的参数，并且求和，所以这样写触发了apply方法，返回30，而不是13
+      上面的例子，就是目标函数是要传两个参数，并且返回之和，拦截目标做的就是改变目标对象的参数，并且求和，所以这样写触发了apply方法，返回30，而不是13
 
   4. has() 用来拦截hasProperty操作，即判断对象是否具有某个属性时，这个方法会生效。典型的操作就是in运算符。
     参数解释：
@@ -158,7 +158,7 @@
             var proxy = new Proxy(target,handler)
             console.log('age' in proxy) // true
             console.log('colors' in proxy) // false
-  上面的例子是典型的has的方法，判断所要查询的属性名是不是在目标对象上的属性名，返回布尔值。
+      上面的例子是典型的has的方法，判断所要查询的属性名是不是在目标对象上的属性名，返回布尔值。
   ps：has拦截对for...in循环不生效。
   
   5. construct() 用于拦截new命令，要返回是一个对象，否则会报错
@@ -168,70 +168,70 @@
       * newTarget：创造实例对象时，new命令作用的构造函数
     例子：
 
-          var p = new Proxy(function () {}, {
-            construct: function(target, args) {
-              console.log('called: ' + args.join(', '));
-              return { value: args[0] * 10 };
-            }
-          });
+            var p = new Proxy(function () {}, {
+              construct: function(target, args) {
+                console.log('called: ' + args.join(', '));
+                return { value: args[0] * 10 };
+              }
+            });
 
-          (new p(1)).value
-          // "called: 1"
-          // 10
-    由此可见，是针对构造函数而言的，对目标对象的构造函数进行拦截。
+            (new p(1)).value
+            // "called: 1"
+            // 10
+      由此可见，是针对构造函数而言的，对目标对象的构造函数进行拦截。
 
   6. defineProperty() 拦截了Object.defineProperty操作，在声明时进行拦截，设置的是一个布尔值
-    参数解释：
-      target：目标对象
-      key：要定义或修改的属性的名称
-      descriptor： 将被定义或修改的属性描述符,是一个对象
-    拓展：
-        Object.defineProperty(),声明对象的属性，参数说明和上述一样
-          例子：
+      * 参数解释：
+        * target：目标对象
+        * key：要定义或修改的属性的名称
+        * descriptor： 将被定义或修改的属性描述符,是一个对象
+      * 拓展：
+          Object.defineProperty(),声明对象的属性，参数说明和上述一样
+            例子：
 
-          var obj = {}
-          Object.defineProperty(obj, "key", {
-            enumerable: false,
-            configurable: false,
-            writable: false,
-            value: "static"
-          });
+            var obj = {}
+            Object.defineProperty(obj, "key", {
+              enumerable: false,
+              configurable: false,
+              writable: false,
+              value: "static"
+            });
 
-  例子：
+      * 例子：
 
-        var target = {
-          name: 'peter',
-          age:25
-        }
-        var handler = {
-          defineProperty(target,key,descriptor){
-            if(key === 'color'){
-              throw new Error('不能定义颜色')
+            var target = {
+              name: 'peter',
+              age:25
             }
-            Object.defineProperty(target, key, descriptor)
-            // return true
-          }
-        }
-        var proxy = new Proxy(target,handler)
-        var descriptor = {
-          writable : true,
-          enumerable : true,
-          configurable : true
-        }
-        descriptor.value = 'sport'
-        Object.defineProperty(proxy, 'favor', descriptor)
-        console.log(proxy.favor) // sport
-        descriptor.value = 'red'
-        Object.defineProperty(proxy, 'color', descriptor)  // 不能定义颜色
-        console.log(proxy.color)
-  如果目标对象不可扩展（non-extensible），则defineProperty不能增加目标对象上不存在的属性，否则会报错。另外，如果目标对象的某个属性不可写（writable）或不可配置（configurable），则defineProperty方法不得改变这两个设置。
+            var handler = {
+              defineProperty(target,key,descriptor){
+                if(key === 'color'){
+                  throw new Error('不能定义颜色')
+                }
+                Object.defineProperty(target, key, descriptor)
+                // return true
+              }
+            }
+            var proxy = new Proxy(target,handler)
+            var descriptor = {
+              writable : true,
+              enumerable : true,
+              configurable : true
+            }
+            descriptor.value = 'sport'
+            Object.defineProperty(proxy, 'favor', descriptor)
+            console.log(proxy.favor) // sport
+            descriptor.value = 'red'
+            Object.defineProperty(proxy, 'color', descriptor)  // 不能定义颜色
+            console.log(proxy.color)
+      如果目标对象不可扩展（non-extensible），则defineProperty不能增加目标对象上不存在的属性，否则会报错。另外，如果目标对象的某个属性不可写（writable）或不可配置（configurable），则defineProperty方法不得改变这两个设置。
   
   7. deleteProperty() 用于拦截delete操作，如果这个方法抛出错误或者返回false，当前属性就无法被delete命令删除。
-    参数解释：
-      * target：目标对象
-      * key：要删除的属性名
-      (delete是关键字，目前用到的就是删除对象的某个属性)
-    例子：
+      * 参数解释：
+        * target：目标对象
+        * key：要删除的属性名
+        (delete是关键字，目前用到的就是删除对象的某个属性)
+      * 例子：
 
             var target = { _prop: 'foo' };
             var handler = {
@@ -245,89 +245,89 @@
             };
             var proxy = new Proxy(target, handler);
             delete proxy._prop // Error: Invalid attempt to delete private "_prop" property
-  上面代码中，deleteProperty方法拦截了delete操作符，删除第一个字符为下划线的属性会报错。
-  注意，目标对象自身的不可配置（configurable）的属性，不能被deleteProperty方法删除，否则报错。
+      上面代码中，deleteProperty方法拦截了delete操作符，删除第一个字符为下划线的属性会报错。
+    注意，目标对象自身的不可配置（configurable）的属性，不能被deleteProperty方法删除，否则报错。
   
   8. getOwnPropertyDescriptor() 拦截Object.getOwnPropertyDescriptor()，返回一个属性描述对象或者undefined。
-    参数解释：
-      * target：目标对象
-      * key： 属性名
-    拓展例子：
-      Object.getOwnPropertyDescriptor(obj,prop) 返回指定对象上一个自有属性对应的属性描述符
-        参数解释： 
-          * obj：需要查找的目标对象
-          * prop: 目标对象内属性名称
-        返回值：
-          如果指定的属性存在于对象上，则返回其属性描述符对象（property descriptor），否则返回 undefined。
-        例子：
+      * 参数解释：
+        * target：目标对象
+        * key： 属性名
+      * 拓展：
+        Object.getOwnPropertyDescriptor(obj,prop) 返回指定对象上一个自有属性对应的属性描述符
+          * 参数解释： 
+            * obj：需要查找的目标对象
+            * prop: 目标对象内属性名称
+          * 返回值：
+            如果指定的属性存在于对象上，则返回其属性描述符对象（property descriptor），否则返回 undefined。
+          * 例子：
 
-            o = { bar: 42 };
-            d = Object.getOwnPropertyDescriptor(o, "bar");
-            console.log(d)
-            // d {
-            //   configurable: true,
-            //   enumerable: true,
-            //   value: 42,
-            //   writable: true
-            // }
+                o = { bar: 42 };
+                d = Object.getOwnPropertyDescriptor(o, "bar");
+                console.log(d)
+                // d {
+                //   configurable: true,
+                //   enumerable: true,
+                //   value: 42,
+                //   writable: true
+                // }
 
-      例子：
+      * 例子：
 
-          var target = { _foo: 'bar', baz: 'tar' };
-          var handler = {
-            getOwnPropertyDescriptor (target, key) {
-              if (key[0] === '_') {
-                return;
+            var target = { _foo: 'bar', baz: 'tar' };
+            var handler = {
+              getOwnPropertyDescriptor (target, key) {
+                if (key[0] === '_') {
+                  return;
+                }
+                return Object.getOwnPropertyDescriptor(target, key);
               }
-              return Object.getOwnPropertyDescriptor(target, key);
-            }
-          };
-          var proxy = new Proxy(target, handler);
-          Object.getOwnPropertyDescriptor(proxy, 'wat')
-          // undefined
-          Object.getOwnPropertyDescriptor(proxy, '_foo')
-          // undefined
-          Object.getOwnPropertyDescriptor(proxy, 'baz')
-          // { value: 'tar', writable: true, enumerable: true, configurable: true }
-  上述说明：对于第一个字符为下划线的属性名会返回undefined。
+            };
+            var proxy = new Proxy(target, handler);
+            Object.getOwnPropertyDescriptor(proxy, 'wat')
+            // undefined
+            Object.getOwnPropertyDescriptor(proxy, '_foo')
+            // undefined
+            Object.getOwnPropertyDescriptor(proxy, 'baz')
+            // { value: 'tar', writable: true, enumerable: true, configurable: true }
+      上述说明：对于第一个字符为下划线的属性名会返回undefined。
   
   9. getPrototypeOf() 用来拦截获取对象原型,主要拦截以下操作：
       * 如下：
-        * Object.prototype.__proto__
+        * Object.prototype.\__proto__
           -- 该特性已经从 Web 标准中删除
         * Object.prototype.isPrototypeOf() 
           用于测试一个对象是否存在于另一个对象的原型链上。
-          参数：
+          * 参数：
             * object 在该对象的原型链上搜寻
-          返回值：
+          * 返回值：
             * 返回值 表示调用对象是否在另一个对象的原型链上。布尔值
-          例子：
+          * 例子：
 
-              function Baz() {}
-              var baz = new Baz();
-              console.log(Baz.prototype.isPrototypeOf(baz)); // true
-        * Object.getPrototypeOf(obj) 返回指定对象的原型（内部[[Prototype]]属性的值）
-          参数：
+                function Baz() {}
+                var baz = new Baz();
+                console.log(Baz.prototype.isPrototypeOf(baz)); // true
+        * Object.getPrototypeOf(obj) 返回指定对象的原型（内部\[[Prototype]]属性的值）
+          * 参数：
             * obj 返回其原型的对象
-          返回值：
+          * 返回值：
             给定对象的原型。如果没有继承属性，则返回 null 。
-          例子：
+          * 例子：
 
-              var proto = {};
-              var obj = Object.create(proto);
-              Object.getPrototypeOf(obj) === proto; // true
+                var proto = {};
+                var obj = Object.create(proto);
+                Object.getPrototypeOf(obj) === proto; // true
         * Reflect.getPrototypeOf()
         * instanceof
 
       * 例子：
 
-          var proto = {};
-          var p = new Proxy({}, {
-            getPrototypeOf(target) {
-              return proto;
-            }
-          });
-          Object.getPrototypeOf(p) === proto // true
+            var proto = {};
+            var p = new Proxy({}, {
+              getPrototypeOf(target) {
+                return proto;
+              }
+            });
+            Object.getPrototypeOf(p) === proto // true
         上面代码中，getPrototypeOf方法拦截Object.getPrototypeOf()，返回proto对象。
         ps:
           1. getPrototypeOf方法的返回值必须是对象或者null，否则报错
@@ -453,11 +453,36 @@
           ————————————
       * 例子之一：
       
-          var p = new Proxy({}, {
-            ownKeys: function(target) {
-              return ['a', 'b', 'c'];
-            }
-          });
+            var p = new Proxy({}, {
+              ownKeys: function(target) {
+                return ['a', 'b', 'c'];
+              }
+            });
 
-          Object.getOwnPropertyNames(p)
-          // [ 'a', 'b', 'c' ]
+            Object.getOwnPropertyNames(p)
+            // [ 'a', 'b', 'c' ]
+
+#### 五 Proxy.revocable(target, handler) 
+  返回一个可取消的 Proxy 实例
+  * 参数解释：
+    * target 用Proxy包装的目标对象（可以是任何类型的对象，包括原生数组，函数，甚至另一个代理）。
+    * handler 拦截对象，其属性是当执行一个操作时定义代理的行为的函数。
+  * 返回值
+    返回一个包含了所生成的代理对象本身以及该代理对象的撤销方法的对象
+    其结构为： {"proxy": proxy, "revoke": revoke}，其中：
+      * proxy
+      表示新生成的代理对象本身，和用一般方式 new Proxy(target, handler) 创建的代理对象没什么不同，只是它可以被撤销掉
+      * revoke
+      撤销方法，调用的时候不需要加任何参数，就可以撤销掉和它一起生成的那个代理对象
+  * 例子：
+
+        var revocable = Proxy.revocable({}, {
+          get(target, propKey) {
+            return propKey + '啦啦啦';
+          }
+        });
+        var proxy = revocable.proxy;
+        console.log(proxy.foo) // foo啦啦啦
+        revocable.revoke(); // 执行撤销方法
+        console.log(proxy.foo); // Uncaught TypeError: Cannot perform 'get' on a proxy that has been revoked
+
