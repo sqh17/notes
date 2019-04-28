@@ -31,3 +31,4 @@
 * [0409-0416的笔记](https://github.com/sqh17/notes/blob/master/ways/04090411.md)
 * [es6学习笔记--async函数](https://github.com/sqh17/notes/blob/master/ways/async.md)
 * [es6学习笔记--proxy对象](https://github.com/sqh17/notes/blob/master/ways/proxy.md)
+* [node将rem适配更换](https://github.com/sqh17/notes/blob/master/ways/replace.js)
