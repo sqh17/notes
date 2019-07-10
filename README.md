@@ -32,3 +32,4 @@
 * [es6学习笔记--async函数](https://github.com/sqh17/notes/blob/master/ways/async.md)
 * [es6学习笔记--proxy对象](https://github.com/sqh17/notes/blob/master/ways/proxy.md)
 * [node将rem适配更换](https://github.com/sqh17/notes/blob/master/ways/replace.js)
+* [使用字蛛教程以及遇到的bug](https://github.com/sqh17/notes/blob/master/ways/fontSpider.md)
