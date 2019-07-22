@@ -70,3 +70,5 @@ font-spider是一个node包，依赖于node，所以应先下载node，下载过
 
 #### 总结
   字蛛是一个很好用的字体压缩包，将十几M的字体包变成了多少k的字体包，减少了容量，提高了性能，优化了用户体验，推荐！
+
+  我把笔记放到[GitHub](https://github.com/sqh17/notes/blob/master/ways/fontSpider.md)里了，如需要可以去看看，有什么不对的地方，欢迎指正，大家一起进步加油。
