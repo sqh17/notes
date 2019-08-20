@@ -129,3 +129,84 @@ btn.onclick = function() {
 客户端的页面代码在demo中，可以下载查看学习。
 
 ##### 服务端（Node）
+一开始实践时，看着教程实现了简易聊天室，用的是socketIO插件，很好奇原生是怎样实现的，所以本文用的是原生Websocket实现超简单版的简易聊天室，没有做很多的优化和逻辑实现，只是单纯的实现原理，废话不多说了，开始～
+
+###### 步骤：
+简要步骤如下：
+* 创建一个http服务，并开启服务，监听端口。
+* 在这个服务中，用upgrade事件升级为websocket。
+* 设置特殊的请求头，计算Sec-WebSocket-Key。
+* 创建Websocket构造函数
+
+再详细些：
+先创建并开启http服务
+```javascript
+const http = require('http')
+const path = require('path')
+const fs = require('fs')
+const url = require('url')
+var util = require("util");
+var server = http.createServer((req,res)=>{
+  let {pathname} = url.parse(req.url)
+  let raw = fs.createReadStream(path.resolve(__dirname,pathname.replace(/^\//,''))) // 利用stream读取文件，提升效率
+  raw.on('error',(err)=>{ // 没有对应文件时
+    console.log(err)
+    if(err.code === 'ENOENT'){
+      res.writeHeader(404,{'content-type':'text/html;charset="utf-8"'})
+      res.write('<h1>404错误</h1><p>你找的页面不存在</p>');
+      res.end()
+    }
+  })
+  res.writeHead(200,{})
+  raw.pipe(res)
+})  
+
+server.listen(1337,'127.0.0.1',()=>{
+  console.log('server opening')
+})
+```
+客户端发起协议升级请求。这个请求和通常的 HTTP 请求不同，包含了一些附加头信息，其中附加头信息"Upgrade: WebSocket"表明这是一个申请协议升级的 HTTP 请求。如下：
+```
+GET / HTTP/1.1
+Host: localhost:8080
+Origin: http://127.0.0.1:1337
+Connection: Upgrade  // 表示要升级协议
+Upgrade: websocket // 表示要升级到websocket协议。
+Sec-WebSocket-Version: 13 // 表示websocket的版本。如果服务端不支持该版本，需要返回一个Sec-WebSocket-Versionheader，里面包含服务端支持的版本号。
+Sec-WebSocket-Key: qbv0O6xaTi36lq3RNcgctw== // 与后面服务端响应首部的Sec-WebSocket-Accept是配套的，提供基本的防护，比如恶意的连接，或者无意的连接。
+```
+
+ps：上面请求省略了部分非重点请求首部。由于是标准的HTTP请求，类似Host、Origin、Cookie等请求首部会照常发送。在握手阶段，可以通过相关请求首部进行 安全限制、权限校验等。
+```javascript
+//  http握手成功后，升级协议,会触发upgrade
+server.on('upgrade',(req,socket,upgradeHead)=>{
+  var key = req.headers['sec-websocket-key'] // 因为升级协议，能拿到请求头中key
+  key = crypto.createHash("sha1").update(key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").digest("base64"); 
+  var headers = [
+    'HTTP/1.1 101 Switching Protocols',
+    'Upgrade: websocket',
+    'Connection: Upgrade',
+    'Sec-WebSocket-Accept: ' + key
+  ];
+  socket.setNoDelay(true);
+  socket.write(headers.join("\r\n") + "\r\n\r\n", 'ascii');
+})
+```
+`上述代码中的Sec-WebSocket-Accept根据客户端请求首部的Sec-WebSocket-Key计算出来。`
+计算公式为：
+* 将Sec-WebSocket-Key跟258EAFA5-E914-47DA-95CA-C5AB0DC85B11拼接。(后面是固定的)
+* 通过SHA1计算出摘要，并转成base64字符串。
+
+
+之后 服务端返回内容如下，状态代码101表示协议切换。到此完成协议升级，后续的数据交互都按照新的协议来。
+
+```
+Request URL: ws://127.0.0.1:1337/
+Request Method: GET
+Status Code: 101 Switching Protocols
+Connection: Upgrade
+Sec-WebSocket-Accept: Jd+Og2IME1QWEKi2M3QWNJ22gLM=
+Upgrade: websocket
+```
+
+这样就代表转换成功，再往下就是编写websocket方法了。
