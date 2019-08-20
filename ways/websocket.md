@@ -27,6 +27,105 @@ Socket是应用层与TCP/IP协议族通信的中间软件抽象层，它是一�
 * 2 服务器收到客户端的握手请求后，同样采用HTTP协议回馈数据；
 * 3 客户端收到连接成功的消息后，开始借助于TCP传输信道进行全双工通信。
 
-#### 客户端代码解析
+#### 代码实现
 
-首先，现在
+##### 客户端
+websocket是一个构造函数，需要实例化一个对象，
+``WebSocket(url[, protocols])`` 
+* url为服务器的地址
+* protocols 可接受的子协议，可选
+##### 属性：
+Socket.readyState：只读属性 readyState 表示连接状态
+ * 0 - 表示连接尚未建立 （The connection has not yet been established.）
+ * 1 - 表示连接已建立，可以进行通信 （The WebSocket connection is established and communication is possible.）
+ * 2 - 表示连接正在进行关闭。（The connection is going through the closing handshake.）
+ * 3 - 表示连接已经关闭或者连接不能打开（The connection has been closed or could not be opened.）
+
+对此，可以通过readyState进行判断，并响应的回调。
+
+##### 事件
+* onopen 连接建立时触发
+* onmessage 客户端接收服务端数据时触发
+* onerror 通信发生错误时触发
+* onclose 连接关闭时触发
+
+##### 方法
+* send 向服务端发送数据
+* close 关闭连接
+
+##### 兼容性
+既然是html5的新特性，避免不了兼容性，不过可以通过插件来实现兼容
+
+##### 代码实现
+html代码：
+```html
+<body>
+  <div class="container">
+    <div class="content">
+      <!-- <div class="list">
+        <div class="section">123123</div>
+      </div>
+      <div class="list">
+        <div class="section">123123</div>
+      </div>
+      <div class="list">
+        <div class="section">123123</div>
+      </div> -->
+    </div>
+    <div class="control">
+      <input id="input" type="text" />
+      <div class="send-btn">Send</div>
+    </div>
+  </div>
+  <script src="index.js"></script>
+</body>
+```
+js代码：
+```javascript
+var content = document.querySelector(".content");
+var btn = document.querySelector(".send-btn");
+var ipt = document.querySelector("#input");
+
+//语法 var Socket = new WebSocket(url, [protocol] );
+var ws = new WebSocket("ws://127.0.0.1:1337");
+//连接建立时触发
+ws.onopen = function(e) {
+  console.log("Connection open ...");
+  if(ws.readyState == '1'){
+    console.log('可以通信了')
+  }else if(ws.readyState == '0'){
+    console.log('0')
+  }
+};
+//接收消息时触发
+ws.onmessage = function(e) {
+  console.log("Received Message: " + evt.data);
+  content.innerHTML +=
+    `<div class="list"><div class="section">${e.data}</div></div>`;
+  content.scrollTop = content.scrollHeight;
+};
+//关闭连接触发
+ws.onclose = function(e) {
+  console.log("Connection closed.");
+};
+//通信发生错误时触发
+ws.onerror = function(e) {
+  console.log("Connection Error.");
+};
+//检查浏览器是否支持WebSocket
+if (typeof WebSocket == "undefined") {
+  alert("您的浏览器不支持 WebSocket!");
+}
+
+
+btn.onclick = function() {
+  var message = ipt.value;
+  ws.send(message) // 向服务端发送数据
+  ipt.value = "";
+  content.scrollTop = content.scrollHeight;
+};
+```
+
+客户端的页面代码在demo中，可以下载查看学习。
+
+##### 服务端（Node）
