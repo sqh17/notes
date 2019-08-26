@@ -176,7 +176,7 @@ Sec-WebSocket-Version: 13 // 表示websocket的版本。如果服务端不支持
 Sec-WebSocket-Key: qbv0O6xaTi36lq3RNcgctw== // 与后面服务端响应首部的Sec-WebSocket-Accept是配套的，提供基本的防护，比如恶意的连接，或者无意的连接。
 ```
 
-ps：上面请求省略了部分非重点请求首部。由于是标准的HTTP请求，类似Host、Origin、Cookie等请求首部会照常发送。在握手阶段，可以通过相关请求首部进行 安全限制、权限校验等。
+ps：上面的请求不是很全，还会有其他的和http一样的host、origin、cookie。
 ```javascript
 //  http握手成功后，升级协议,会触发upgrade
 server.on('upgrade',(req,socket,upgradeHead)=>{
@@ -192,10 +192,8 @@ server.on('upgrade',(req,socket,upgradeHead)=>{
   socket.write(headers.join("\r\n") + "\r\n\r\n", 'ascii');
 })
 ```
+
 `上述代码中的Sec-WebSocket-Accept根据客户端请求首部的Sec-WebSocket-Key计算出来。`
-计算公式为：
-* 将Sec-WebSocket-Key跟258EAFA5-E914-47DA-95CA-C5AB0DC85B11拼接。(后面是固定的)
-* 通过SHA1计算出摘要，并转成base64字符串。
 
 
 之后 服务端返回内容如下，状态代码101表示协议切换。到此完成协议升级，后续的数据交互都按照新的协议来。
@@ -210,3 +208,67 @@ Upgrade: websocket
 ```
 
 这样就代表转换成功，再往下就是编写websocket方法了。
+但首先先了解一下websocket的数据帧格式，这数据帧的详解，我摘自这位博主`程序猿小卡_casper`的[文段](https://segmentfault.com/a/1190000012709475),这篇文章关于websocket写的很棒，可以去看看。
+WebSocket客户端、服务端通信的最小单位是帧（frame），由1个或多个帧组成一条完整的消息（message）。
+* 发送端：将消息切割成多个帧，并发送给服务端；
+* 接收端：接收消息帧，并将关联的帧重新组装成完整的消息；
+```
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ +-+-+-+-+-------+-+-------------+-------------------------------+
+ |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+ |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
+ |N|V|V|V|       |S|             |   (if payload len==126/127)   |
+ | |1|2|3|       |K|             |                               |
+ +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+ |     Extended payload length continued, if payload len == 127  |
+ + - - - - - - - - - - - - - - - +-------------------------------+
+ |                               |Masking-key, if MASK set to 1  |
+ +-------------------------------+-------------------------------+
+ | Masking-key (continued)       |          Payload Data         |
+ +-------------------------------- - - - - - - - - - - - - - - - +
+ :                     Payload Data continued ...                :
+ + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ |                     Payload Data continued ...                |
+ +---------------------------------------------------------------+
+```
+针对上面的的格式概览图，这里逐个字段进行讲解：
+* FIN：1个比特。
+    如果是1，表示这是消息（message）的最后一个分片（fragment），如果是0，表示不是是消息（message）的最后一个分片（fragment）。
+* RSV1, RSV2, RSV3：各占1个比特。
+    一般情况下全为0。当客户端、服务端协商采用WebSocket扩展时，这三个标志位可以非0，且值的含义由扩展进行定义。如果出现非零的值，且并没有采用WebSocket扩展，连接出错。
+* Opcode: 4个比特。
+    操作代码，Opcode的值决定了应该如何解析后续的数据载荷（data payload）。如果操作代码是不认识的，那么接收端应该断开连接（fail the connection）。可选的操作代码如下：
+      * %x0：表示一个延续帧。当Opcode为0时，表示本次数据传输采用了数据分片，当前收到的数据帧为其中一个数据分片。
+      * %x1：表示这是一个文本帧（frame）
+      * %x2：表示这是一个二进制帧（frame）
+      * %x3-7：保留的操作代码，用于后续定义的非控制帧。
+      * %x8：表示连接断开。
+      * %x9：表示这是一个ping操作。
+      * %xA：表示这是一个pong操作。
+      * %xB-F：保留的操作代码，用于后续定义的控制帧。
+* Mask: 1个比特。
+    表示是否要对数据载荷进行掩码操作。从客户端向服务端发送数据时，需要对数据进行掩码操作；从服务端向客户端发送数据时，不需要对数据进行掩码操作。
+    如果服务端接收到的数据没有进行过掩码操作，服务端需要断开连接。
+    如果Mask是1，那么在Masking-key中会定义一个掩码键（masking key），并用这个掩码键来对数据载荷进行反掩码。所有客户端发送到服务端的数据帧，Mask都是1。
+    掩码键（Masking-key）是由客户端挑选出来的32位的随机数。掩码操作不会影响数据载荷的长度。掩码、反掩码操作都采用如下算法：
+
+      首先，假设：
+
+      original-octet-i：为原始数据的第i字节。
+      transformed-octet-i：为转换后的数据的第i字节。
+      j：为i mod 4的结果。
+      masking-key-octet-j：为mask key第j字节。
+      算法描述为： original-octet-i 与 masking-key-octet-j 异或后，得到 transformed-octet-i。
+
+      j = i MOD 4
+      transformed-octet-i = original-octet-i XOR masking-key-octet-j
+
+
+* 1 创建一个构造函数，用来实例化，因为每个客户端请求服务时，都会调用一个实例。
+  ```javascript
+    function WebSocket(socket) {
+      this.socket = socket;
+    }
+  ```
+* 2 
