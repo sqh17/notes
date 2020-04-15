@@ -11,25 +11,31 @@ class myPromise {
     this.status = PENDING; // 初始化状态
     this.value = null; // 存储当前的value值
     let _resolve = (val)=>{
-      if(this.status !== PENDING) return; // 保证当前pending状态只能切换到fullfilled或者reject
-      this.status = FULLFILLED; 
-      this.value = val;
-      // 从成功队列里取出回调依次执行
-      while(this._resolveQueue.length){
-        let callback = this._resolveQueue.shift();
-        callback(val)
+      let run = ()=>{
+        if(this.status !== PENDING) return; // 保证当前pending状态只能切换到fullfilled或者reject
+        this.status = FULLFILLED; 
+        this.value = val;
+        // 从成功队列里取出回调依次执行
+        while(this._resolveQueue.length){
+          let callback = this._resolveQueue.shift();
+          callback(val)
+        }
       }
+      setTimeout(run)
     }
 
     let _reject = (val)=>{
-      if(this.status !== PENDING) return; // 保证当前pending状态只能切换到fullfilled或者reject
-      this.status = REJECT;
-      this.value = val;
-      // 从失败队列里取出回调依次执行
-      while(this._rejectQueue.length){
-        let callback = this._rejectQueue.shift();
-        callback(val)
+      let run = ()=>{
+        if(this.status !== PENDING) return; // 保证当前pending状态只能切换到fullfilled或者reject
+        this.status = REJECT;
+        this.value = val;
+        // 从失败队列里取出回调依次执行
+        while(this._rejectQueue.length){
+          let callback = this._rejectQueue.shift();
+          callback(val)
+        }
       }
+      setTimeout(run)
     }
 
     // new Promise()时立即执行executor,并传入resolve和reject
@@ -94,22 +100,31 @@ class myPromise {
 
 // 测试
 const p1 = new myPromise((resolve, reject) => {
-  setTimeout(() => {
-    resolve(1)
-  }, 500);
+  resolve(1)          //同步executor测试
 })
 
 p1
   .then(res => {
     console.log(res)
-    return 2
+    return 2          //链式调用测试
+  })
+  .then()             //值穿透测试
+  .then(res => {
+    console.log(res)
+    return new myPromise((resolve, reject) => {
+      resolve(3)      //返回Promise测试
+    })
   })
   .then(res => {
     console.log(res)
-    return 3
+    throw new Error('reject测试')   //reject测试
   })
-  .then(res => {
-    console.log(res)
+  .then(() => {}, err => {
+    console.log(err)
   })
 
-//输出 1 2 3
+// 输出 
+// 1 
+// 2 
+// 3 
+// Error: reject测试

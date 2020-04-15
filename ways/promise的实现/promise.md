@@ -21,12 +21,19 @@ ES6的Promise实现需要遵循Promise/A+规范，是规范对Promise的状态�
 * then方法接收两个可选参数，分别对应状态改变时触发的回调。
 * then方法返回一个promise。then 方法可以被同一个 promise 调用多次。  ===> 参考promise3.js
 
-##### 第三步 细节处理
+##### 第三步 细节处理1
 
 * 根据Promise/A+规范，如果then()接收的参数不是function，应该忽略，而抛出异常，而不是链式中断。
 * 处理状态为resolve/reject的情况，因为有三种状态，那么pending的时候应该push到队列中，如果状态已经确定的话，已为fullfilled或者rejected。then返回的是resolve的promise那么应该直接执行resolve的回调，相同的reject则执行reject的回调。
 
 参考 promise4.js
+
+##### 第四步 细节处理2
+
+promise是为了异步，假设excutor是同步情况则不符合要求，则将变为异步实行 
+
+参考 promise5.js
+
 
 
 

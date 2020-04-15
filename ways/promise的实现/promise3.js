@@ -69,7 +69,7 @@ class myPromise {
 
 
 // 测试
-const p1 = new MyPromise((resolve, reject) => {
+const p1 = new myPromise((resolve, reject) => {
   setTimeout(() => {
     resolve(1)
   }, 500);
