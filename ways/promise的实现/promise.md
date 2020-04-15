@@ -34,6 +34,11 @@ promise是为了异步，假设excutor是同步情况则不符合要求，则将
 
 参考 promise5.js
 
+##### 第五步 添加方法
+
+promise还包含其中的方法，比如catch,resolve,finally,all,race
+
+参考 promise6.js
 
 
 
