@@ -100,16 +100,16 @@ class myPromise {
     return this.then(undefined, rejectFn)
   }
 
-  resolve(value) {
+  static resolve(value) {
     if(value instanceof myPromise) return value // 根据规范, 如果参数是Promise实例, 直接return这个实例
     return new myPromise(resolve => resolve(value))
   }
 
-  reject(value) {
+  static reject(value) {
     return new myPromise((resolve, reject) => reject(value))
   }
 
-  all(arr){
+  static all(arr){
     return new myPromise((resolve,reject)=>{
       let values = [];
       let count = 0;
@@ -125,7 +125,7 @@ class myPromise {
     })
   }
 
-  race(arr){
+  static race(arr){
     return new myPromise((resolve,reject)=>{
       for(let p of arr.entries()){
         this.resolve(p).then(res=>{
@@ -137,11 +137,11 @@ class myPromise {
     })
   }
 
-  finally(val){
+  finally(callbak){
     return this.then(res=>{
-      return myPromise.resolve(val()).then(()=>res)
+      return myPromise.resolve(callbak()).then(()=>res)
     },err=>{
-      return myPromise.resolve(val()).then(()=>{throw er})
+      return myPromise.resolve(callbak()).then(()=>{throw er})
     })
   }
 }

@@ -47,6 +47,9 @@ promise还包含其中的方法，比如catch,resolve,finally,all,race
 
 
 
+##### 总结
+
+promise参考版有两个，总体来说都是一样的思路，学习为已用就是最好的。
 
 
 
