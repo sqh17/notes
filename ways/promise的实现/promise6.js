@@ -106,19 +106,43 @@ class myPromise {
   }
 
   reject(value) {
-    return new MyPromise((resolve, reject) => reject(value))
+    return new myPromise((resolve, reject) => reject(value))
   }
 
   all(arr){
-
+    return new myPromise((resolve,reject)=>{
+      let values = [];
+      let count = 0;
+      for(let [p,i] of arr.entries()){
+        myPromise.resolve(p).then(res=>{
+          values[i] = res;
+          count++;
+          if(count == arr.length) resolve(values)
+        },err=>{
+          reject(err)
+        })
+      }
+    })
   }
 
   race(arr){
-
+    return new myPromise((resolve,reject)=>{
+      for(let p of arr.entries()){
+        this.resolve(p).then(res=>{
+          resolve(res)
+        },err=>{
+          reject(err)
+        })
+      }
+    })
   }
 
   finally(val){
-    
+    return this.then(res=>{
+      return myPromise.resolve(val()).then(()=>res)
+    },err=>{
+      return myPromise.resolve(val()).then(()=>{throw er})
+    })
   }
 }
 
