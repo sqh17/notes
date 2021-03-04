@@ -37,3 +37,4 @@
 * [rem适配](https://github.com/sqh17/notes/blob/master/ways/rem.js)
 * [js实现输入密码之延迟星号和点击按钮显示或隐藏](https://github.com/sqh17/notes/blob/master/ways/password.md)
 * [内存泄漏](https://github.com/sqh17/notes/blob/master/ways/memory_leak.md)
+* [vue实现深浅色换肤](https://github.com/sqh17/notes/blob/master/ways/chaneTheme.md)
