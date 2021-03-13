@@ -49,3 +49,7 @@
 * [接口](https://github.com/sqh17/ts-study/blob/master/interface.md)
 * [泛型](https://github.com/sqh17/ts-study/blob/master/generics.md)
 * [高级类型](https://github.com/sqh17/ts-study/blob/master/seniorType.md)
+
+
+#### 服务器
+* [搭建node环境](https://github.com/sqh17/ts-study/blob/master/servers_node_build.md)
