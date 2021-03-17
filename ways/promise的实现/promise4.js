@@ -45,11 +45,13 @@ class myPromise {
     }:null;
     //return一个新的promise
     return new myPromise((resolve,reject)=>{
+    
       //把resolveFn重新包装一下,再push进resolve执行队列,这是为了能够获取回调的返回值进行分类讨论
       let _resolveFn = (val)=>{
         try{
           //执行第一个(当前的)Promise的成功回调,并获取返回值
           let x = resolveFn(val); 
+          console.log('x',x)
           //分类讨论返回值,如果是Promise,那么等待Promise状态变更,否则直接resolve
           x instanceof myPromise ? x.then(resolve,reject):resolve(x);
         }catch(err){
@@ -101,9 +103,10 @@ const p1 = new myPromise((resolve, reject) => {
 
 p1
   .then(res => {
-    console.log(res)
+    console.log('1',res)
     return 2
   })
+  .then({a:1})
   .then(res => {
     console.log(res)
     return 3

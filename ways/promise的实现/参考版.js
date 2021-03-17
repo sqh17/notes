@@ -195,3 +195,24 @@
      );
    }
  }
+
+ const p1 = new MyPromise((resolve, reject) => {
+  setTimeout(() => {
+    resolve(1)
+  }, 500);
+})
+
+p1
+  .then(res => {
+    console.log('1',res)
+    return 2
+  })
+  .then({a:1})
+  .then(res => {
+    console.log(res)
+    return 3
+  })
+  .then(res => {
+    console.log(res)
+  })
+  
