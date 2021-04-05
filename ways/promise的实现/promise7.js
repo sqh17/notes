@@ -195,7 +195,34 @@ class Promise{
     });
   }
 }
-
+Promise.control = function (promises, limit) {
+  let len = promises.length
+  limit = limit ? limit : 4
+  let ress = []
+  let running = 0,
+    index = -1,
+    count = 0
+  return new Promise((resolve, reject) => {
+    function next() {
+      while (running < limit && promises.length) {
+        running++
+        let i = ++index // 保存当前index
+        let task = promises.shift()
+        task()
+          .then((res) => {
+            ress[i] = res
+            count++
+          })
+          .finally(() => {
+            if (count === len) resolve(ress)
+            running--
+            next()
+          })
+      }
+    }
+    next()
+  }).then((ress) => console.log(ress))
+}
 Promise.defer = Promise.deferred = function() {
   let dfd = {};
   dfd.promise = new Promise((resolve, reject) => {
