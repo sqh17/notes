@@ -195,6 +195,7 @@ class Promise{
     });
   }
 }
+// 基于Promise实现一个限制并发请求的函数
 Promise.control = function (promises, limit) {
   let len = promises.length
   limit = limit ? limit : 4
@@ -221,8 +222,9 @@ Promise.control = function (promises, limit) {
       }
     }
     next()
-  }).then((ress) => console.log(ress))
+  })
 }
+
 Promise.defer = Promise.deferred = function() {
   let dfd = {};
   dfd.promise = new Promise((resolve, reject) => {
@@ -232,3 +234,25 @@ Promise.defer = Promise.deferred = function() {
   return dfd;
 };
 module.exports = Promise;
+
+
+
+// 测试限制并发请求
+let sleep = function(time){
+  return ()=>{
+      return new Promise((resolve,reject)=>{
+          setTimeout(() => {
+              resolve(time)
+          }, time);
+      })
+  }
+} // 执行函数可返回一个自定义请求事件的函数，用来模拟请求
+
+//创建模拟请求任务
+let tasks = [sleep(4000),sleep(2000),sleep(3000),sleep(2000)];
+// 发送请求 并发数为2
+console.time();
+Promise.control(tasks,4).then((value)=>{
+    console.log(value)
+    console.timeEnd();
+})
