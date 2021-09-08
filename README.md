@@ -53,3 +53,6 @@
 
 #### 服务器
 * [搭建node环境](https://github.com/sqh17/ts-study/blob/master/servers_node_build.md)
+
+### git
+* [git checkout pathspec 'wt-sqh-intelligent2' did not match any file(s) known to git](https://github.com/sqh17/ts-study/blob/master/git_checkout_problem.md)
