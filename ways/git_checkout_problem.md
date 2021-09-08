@@ -14,7 +14,8 @@ error: pathspec 'wt-sqh-intelligent2' did not match any file(s) known to git
 #### 拓展
 在查阅资料时，发现一篇文章有实践意义，特意来实战了一下,记录下来
 
-##### 起源：
+~~##### 起源：(此方法抛弃，见结尾)~~
+
 当本地没有对应的分支名时，又想切换到该分支
 ```
 git checkout fix-logo
@@ -91,3 +92,8 @@ git pull
 ```
 Already up-to-date.
 ```
+
+
+
+### warn 再次更新
+以上拓展的方式 很鸡肋，虽然还能用这方式，但是现有的git checkout 中会自动创建对应分支，所以拓展的方式不建议使用。
