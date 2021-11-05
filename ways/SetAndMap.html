@@ -203,7 +203,13 @@
         // console.log(map.get(key2)); // 42
         // console.log(map.delete(key2))  // true
         // console.log(map)   // WeakMap {{…} => "Hello"}
- 
+        // 缓存函数
+        // function memorizeData(fn){
+        //     const cache = new WeakMap();
+        //     return function (...args) {
+        //         return (cache.has(args) && (Date.now() - cache.get(args).time < 60000 || args = null)) && cache.get(args).dataFn || cache.set(args,{dataFn: fn.apply(fn,args), time: Date.now()})
+        //     }
+        // }
 
     </script>   
 </body>
