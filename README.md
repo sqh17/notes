@@ -2,6 +2,7 @@
 前端笔记，便于复习
 
 ----
+
 #### 普通笔记
 
 * [git和svn的使用](https://github.com/sqh17/notes/blob/master/ways/use%20of%20git%20and%20svn.docx)
@@ -31,6 +32,7 @@
 
 
 #### ES6系列
+
 * [es6学习笔记--解构赋值](https://github.com/sqh17/notes/blob/master/ways/Destructuring.html)
 * [es6学习笔记--字符串&数组&对象&函数&数值的扩展](https://github.com/sqh17/notes/blob/master/ways/extends.html)
 * [es6学习笔记--新数据类型](https://github.com/sqh17/notes/blob/master/ways/symbol.html)
@@ -40,8 +42,10 @@
 * [es6学习笔记--Iterator&Generator](https://github.com/sqh17/notes/blob/master/ways/Iterator&Generator.html)
 * [es6学习笔记--async函数](https://github.com/sqh17/notes/blob/master/ways/async.md)
 * [es6学习笔记--proxy对象](https://github.com/sqh17/notes/blob/master/ways/proxy.md)
+* [es6学习笔记--运算符](https://github.com/sqh17/notes/blob/master/ways/operator.md)
 
 #### TS系列
+
 * [第一步](https://github.com/sqh17/ts-study/blob/master/ts_note.md)
 * [基本类型](https://github.com/sqh17/ts-study/blob/master/basic.md)
 * [函数类型](https://github.com/sqh17/ts-study/blob/master/function.md)
@@ -50,13 +54,15 @@
 * [泛型](https://github.com/sqh17/ts-study/blob/master/generics.md)
 * [高级类型](https://github.com/sqh17/ts-study/blob/master/seniorType.md)
 
-
 #### 服务器
+
 * [搭建node环境](https://github.com/sqh17/ts-study/blob/master/servers_node_build.md)
 
 #### git
+
 * [git checkout pathspec 'wt-sqh-intelligent2' did not match any file(s) known to git](https://github.com/sqh17/notes/blob/master/ways/git_checkout_problem.md)
 * [git pull Pulling without specifying how to reconcile divergent branches](https://github.com/sqh17/ts-study/blob/master/git_pull_problem.md)
 
 #### docker
+
 * [docker笔记](https://github.com/sqh17/notes/blob/master/docker_learn.md)
