@@ -11,8 +11,8 @@
         ```
     2. 方案讲解
         vue本身都有组件复用的能力，该路由对应的组件在路由地址path发生了改变但同一个组件，会复用该组件，不会再重新创建该组件实例，所以对应的写在生命周期钩子函数中的异步请求代码就不会执行，页面也不会重新渲染。想办法让它声明不是同一组件即可
-        eg：虽然改变了path，但是引用还是同一组件，所以不能单纯看地址栏的变化。
-    3. 不同点：
+        eg：虽然改变了path，但是引用还是同一组件，所以不能单纯看地址栏的变化。（只有这个猜测之说，后续再调查下）
+    3. 不同点（网上查阅）：
         1. 不设置 router-view 的 key 属性
             由于 Vue 会复用相同组件, 即 /page/1 => /page/2 或者 /page?id=1 => /page?id=2 这类链接跳转时, 将不在执行created, mounted之类的钩子, 这时候你需要在路由组件中, 添加beforeRouteUpdate钩子来执行相关方法拉去数据
         2. 设置 router-view 的 key 属性值为 $route.path
@@ -54,3 +54,6 @@ beforeRouteUpdate (to, from, next) {
 ```
 2. $route.path 当前路由的路径
 3. $route.fullPath 完整的路径
+
+##### 参考资料
+[router-view的key属性解决路由更新问题](https://blog.csdn.net/qq379682421/article/details/109892131?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1-109892131-blog-125007651.pc_relevant_multi_platform_whitelistv3&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1-109892131-blog-125007651.pc_relevant_multi_platform_whitelistv3&utm_relevant_index=1)
