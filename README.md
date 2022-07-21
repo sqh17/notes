@@ -29,6 +29,7 @@
 * [Markdown语法](https://github.com/sqh17/notes/blob/master/ways/markdown语法.md)
 * [rem适配](https://github.com/sqh17/notes/blob/master/ways/rem.js)
 * [js实现输入密码之延迟星号和点击按钮显示或隐藏](https://github.com/sqh17/notes/blob/master/ways/password.md)
+* [vue-router切换路由时同一组件不更新问题](./ways/vue-router-key.md)
 
 
 #### ES6系列
@@ -58,11 +59,11 @@
 
 * [搭建node环境](https://github.com/sqh17/ts-study/blob/master/servers_node_build.md)
 
-#### git
+#### git杂难疑症处理
 
 * [git checkout pathspec 'wt-sqh-intelligent2' did not match any file(s) known to git](https://github.com/sqh17/notes/blob/master/ways/git_checkout_problem.md)
 * [git pull Pulling without specifying how to reconcile divergent branches](https://github.com/sqh17/ts-study/blob/master/git_pull_problem.md)
 
 #### docker
 
-* [docker笔记](https://github.com/sqh17/notes/blob/master/docker_learn.md)
+* [docker笔记（doing）](https://github.com/sqh17/notes/blob/master/docker_learn.md)
