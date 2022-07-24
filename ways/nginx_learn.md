@@ -28,10 +28,62 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
     * 作用：
         1. 安全：隐藏服务节点的IP，将服务节点置于防火墙之后，避免直接攻击业务节点服务器
         2. 服务节点更专注于业务，同时提升性能（去让nginx实现gzip压缩，https等等；动静分离，缓存机制，）
-    * 三种模式
+    * 三种模式(__网上查阅的，不是很懂，需要再熟悉！__)
+        1. 基于IP（路径path）代理
+            location后的path带不带/没有区别，proxy_pass后的路径带不带‘/’ 区别很大.
+            1. target服务路径需要context-path(location： /docs)时
+            ```
+            location /docs{
+                proxy_pass http://localhost:8080;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;                
+            }
+            
+            #http://localhost:1111/docs
+            #代理访问后端服务：http://localhost:8080/docs
+            ```
+            2. target服务路径不需要context-path(location：/tomcat)时
+            ```
+            location /tomcat {
+                proxy_pass http://localhost:8080/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  
+            }
+            
+            #http://localhost:1111/tomcat/docs
+            #代理访问后端服务：http://localhost:8080/docs
+            ```
+        2. 基于域名代理
+        ```
+        server {
+            listen       1111;
+            server_name  tomcat.local;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;        
+            location / {
+                proxy_pass http://127.0.0.1:8080;
+            }
+        }
+        ```
+        3. 基于端口代理
+        ```
+        server {
+            listen       16010;
+            server_name  localhost;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;    
+            location / {
+                proxy_pass http://192.7.0.36:16010;            
+            }
+        }
+        ```
 * 正向代理
     * 定义：
-
+    与反向代理相反，翻墙，就是所谓的正向代理。有个恰当的例子：多个人找代购购买同一个商品，代购找到买这个的店后一次性给买了。这个过程中，该店主是不知道代购是帮别代买买东西的。那么代购对于多个想买商品的顾客来讲，他就充当了正向代理。
     正向代理是为我们服务的，即为客户端服务的，客户端可以根据正向代理访问到它本身无法访问到的服务器资源。
     向代理对我们是透明的，对服务端是非透明的，即服务端并不知道自己收到的是来自代理的访问还是来自真实客户端的访问
 * 负载均衡
@@ -96,6 +148,76 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
     2. 虚拟主机的概念就是在web服务里的一个独立的网站站点，这个站点对应独立的域名（IP），具有独立的程序和资源目录，可以独立的对外提供服务
     3. 这个独立的站点配置是在nginx.conf中使用server{}代码块标签来表示一个虚拟主机
     4. Nginx支持多个server{}标签，即支持多个虚拟主机站点
+    * 类型
+        1. 基于 IP 的虚拟主机
+        ```
+        server {
+            listen  80;#监听端口
+            server_name  192.168.1.1;#配置虚拟主机名和IP
+            location / {
+                root /home/wwwroot/ipsite01/;#请求匹配路径
+                index  index.html;#指定主页
+                access_log  /home/wwwlog/ipsite01.access.log  main;
+                error_log   /home/wwwlog/ipsite01.error.log  warn;
+            }
+        }
+        server {
+            listen  80;
+            server_name  192.168.1.1;
+            location / {
+                root /home/wwwroot/ipsite02/;#请求匹配路径 
+                index  index.html;
+                access_log  /home/wwwlog/ipsite02.access.log  main;
+                error_log   /home/wwwlog/ipsite02.error.log  warn;
+            }
+        }
+        ```
+        2. 基于域名的虚拟主机
+        ```
+        server {
+            listen  80;#监听端口
+            server_name  www.cainiaojc.com;#配置虚拟主机域名
+            location / {
+                root /home/wwwroot/domainsite01/;#请求匹配路径
+                index  index.html;#指定主页
+                access_log  /home/wwwlog/domainsite01.access.log  main;
+                error_log   /home/wwwlog/domainsite01.error.log  warn;
+            }
+        }
+        server {
+            listen  80;
+            server_name  man.niaoge.com;
+            location / {
+                root /home/wwwroot/domainsite02/;#请求匹配路径 
+                index  index.html;
+                access_log  /home/wwwlog/domainsite02.access.log  main;
+                error_log   /home/wwwlog/domainsite02.error.log  warn;
+            }
+        }
+        ```
+        3. 基于端口的虚拟主机
+        ```
+        server {
+            listen  8080;#监听端口
+            server_name  www.cainiaojc.com;#配置虚拟主机域名
+            location / {
+                root /home/wwwroot/portsite01/;#请求匹配路径
+                index  index.html;#指定主页
+                access_log  /home/wwwlog/portsite01.access.log  main;
+                error_log   /home/wwwlog/portsite01.error.log  warn;
+            }
+        }
+        server {
+            listen  8090;
+            server_name www.cainiaojc.com;
+            location / {
+                root /home/wwwroot/portsite02/;#请求匹配路径 
+                index  index.html;
+                access_log  /home/wwwlog/portsite02.access.log  main;
+                error_log   /home/wwwlog/portsite02.error.log  warn;
+            }
+        }
+        ```
 
 ##### nginx内置全局变量
 以下都是nginx的内置全局变量，可以在配置的任何位置使用
