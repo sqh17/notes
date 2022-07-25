@@ -58,7 +58,7 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
         2. 基于域名代理
         ```
         server {
-            listen       1111;
+            listen       80;
             server_name  tomcat.local;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
@@ -86,6 +86,8 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
     与反向代理相反，翻墙，就是所谓的正向代理。有个恰当的例子：多个人找代购购买同一个商品，代购找到买这个的店后一次性给买了。这个过程中，该店主是不知道代购是帮别代买买东西的。那么代购对于多个想买商品的顾客来讲，他就充当了正向代理。
     正向代理是为我们服务的，即为客户端服务的，客户端可以根据正向代理访问到它本身无法访问到的服务器资源。
     向代理对我们是透明的，对服务端是非透明的，即服务端并不知道自己收到的是来自代理的访问还是来自真实客户端的访问
+    * 缺点：不能直接应用于https，需要特制配置，见示例
+    * 代码示例（未实践，回头实践）看 (Nginx服务器---正向代理)[https://blog.csdn.net/weixin_42751488/article/details/124148392]
 * 负载均衡
     * 定义：简单而言就是当有2台或2台以上服务器时，根据规则随机的将请求分发到指定的服务器上处理，以来减轻服务器的压力。
     负载均衡配置一般都需要同时配置反向代理，通过反向代理跳转到负载均衡。
@@ -163,7 +165,7 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
         }
         server {
             listen  80;
-            server_name  192.168.1.1;
+            server_name  192.168.1.2;
             location / {
                 root /home/wwwroot/ipsite02/;#请求匹配路径 
                 index  index.html;
@@ -220,7 +222,7 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
         ```
 
 ##### nginx内置全局变量
-以下都是nginx的内置全局变量，可以在配置的任何位置使用
+以下都是nginx的部分内置全局变量，可以在配置的任何位置使用
 * $host : 请求信息中的Host，若请求中没有host行，则等于设置的服务器名
 * $request_mothed: 客户端的请求类型，如get/post/put
 * $remote_addr: 客户端的ip
@@ -233,8 +235,83 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
 * $server_addr: 服务器地址
 * $server_name: 服务器名称
 * $server_port: 服务器的端口号
+* $uri: 请求中的当前 URI，已标准化。我们可以在请求处理期间更改 $uri 的值，例如在进行内部重定向或使用索引文件时。
+* $request: 完整的原始请求行
+* $request_body: 当请求正文被读取到 memory_buffer 时，该变量的值在由 proxy_pass 和 scgi_pass 指令处理的位置中可用。
+* $request_body_file: 带有请求正文的临时文件的名称。
+* $request_uri: 带有参数的完整原始请求 URI（统一资源标识符）。
 
-##### 代码示例
+##### nginx变量
+在配置文件中，可以通过变量，来上下文使用
+用法就是用 __$__ 来命名变量
+```
+set $a "hello world";  
+#这样在nginx.conf文件中都能用到
+```
+例子：移动端和pc端切换.
+```
+location / {
+    # 适配移动端/PC端配置
+    set $type "pc";
+    if ($http_user_agent ~* (mobile|nokia|iphone|ipad|android|samsung|htc|blackberry)) {
+        set $type "mobile";
+    }
+    root /usr/local/var/www/project/$type; # 根据设备类型选择设定根目录文件夹名（pc/mobile）
+    index  index.html index.htm;
+}
+```
+##### location匹配规则
+* 基础
+    1. location 是在 server 块中配置
+    2. 可以根据不同的 URI 使用不同的配置（location 中配置），来处理不同的请求
+    3. location 是有顺序的，会被 __第一个__ 匹配的location 处理。
+* 规则
+    1. / 代表任意匹配
+    2. /api 要求必须以指定模式开始
+    ```
+    location /api{
+		#规则
+	}
+    # 以下访问都是正确的
+    # http://127.0.0.1/api
+    # http://127.0.0.1/api?p1=TOM
+    # http://127.0.0.1/api/
+    # http://127.0.0.1/apiapi
+    ```
+    3. = : 用于不包含正则表达式的uri前，必须与指定的模式精确匹配
+    ```
+    location =/api{
+		#规则
+	}
+    # 可以匹配到
+    # http://127.0.0.1/api
+    # http://127.0.0.1/api?p1=TOM
+    # 匹配不到
+    # http://127.0.0.1/api/
+    # http://127.0.0.1/apiapi
+    ```
+    4. ～ ：大小写敏感
+    ```
+    location ~ /Example/ {
+            #规则
+    }
+    # 可以匹配到
+    #http://127.0.0.1/Example/
+    # 匹配不到
+    #http://127.0.0.1/example/
+    ```
+    5. ～* ： 大小写忽略
+    ```
+    location ~ /Example/ {
+            #规则
+    }
+    # 可以匹配到
+    #http://127.0.0.1/Example/
+    #http://127.0.0.1/example/
+    ```
+    6. ^～ ： 只匹配以 uri 开头
+    
+##### 代码注释
 ```
 #运行用户
 user nobody;
@@ -304,11 +381,18 @@ http {
     #开启gzip压缩
     gzip  on;
     gzip_disable "MSIE [1-6].";
+    # 设定压缩的临界点
+    gzip_min_length 1000; 
+    # 压缩级别
+    gzip_comp_level 3; 
+    # 要压缩的文件类别
+    gzip_types      text/plain application/xml; 
 
     #设定请求缓冲
     client_header_buffer_size    128k;
     large_client_header_buffers  4 128k;
-
+    #开启错误页面跳转404
+    proxy_intercept_errors on;
 
     #设定虚拟主机配置
     server {
@@ -360,6 +444,59 @@ http {
     }
 }
 ```
+##### 代码示例
+1. 重定向
+301 是永久重定向，302 是临时跳转，
+主要的区别在于搜索引擎对此的对待方式:
+    * 301：搜索引擎会将权重和 PR 值进行转移
+    * 302：搜索引擎不会进行额外处理
+```
+server {
+  listen 80;
+  server_name ~^(?:www\.)?(.+)$;
+  return 301 https://$1$request_uri;
+}
+```
+代码解释：在 http 对应的 sever 中，把 server_name 也改为正则模式，并将 $host 用捕获的根域名 $1 取代www 在这里会直接弃掉，所以不需要捕获，使用 ?: 标示实现只分组不捕获，于是后面的根域名就成了 $1这样的结果是不管原来是否带 www，都统一跳转到不带 www 的 https 根域名
+2. 防盗链
+```
+location ~* \.(gif|jpg|jpeg|png|bmp|swf)$ {
+    valid_referers none blocked 192.168.0.103; # 只允许本机IP外链引用
+    if ($invalid_referer){
+        return 403;
+    }
+}
+```
+3. 解决跨域
+```
+server {
+    listen       8080;        
+    server_name  localhost;
+
+    location / {
+        # 跨域代理设置
+        proxy_pass http://www.baidu.com; # 要实现跨域的域名
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+        add_header Access-Control-Allow-Headers 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization';
+    }
+}
+```
+4. 设置访问白名单
+```
+server {
+    listen       8080;        
+    server_name  localhost;
+    location / {
+        # IP访问限制（只允许IP是 12.12.12.12 的机器才能访问）
+        allow 12.12.12.12;
+        deny all;
+        root   html;
+        index  index.html index.htm;
+    }
+}
+```
+
 
 ##### 参考资料
 (8分钟带你深入浅出搞懂Nginx)[https://zhuanlan.zhihu.com/p/34943332]
