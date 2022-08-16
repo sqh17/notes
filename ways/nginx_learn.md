@@ -267,7 +267,84 @@ location / {
 ```
 ##### 多个server同一个server_name匹配规则
 客户端发出一个http请求时，nginx收到后会取出header头中的host，与nginx.conf中每个server的server_name进行匹配，以此决定到底由哪一个server块来处理这个请求。
+* 匹配规则：
 
+    1. 完全匹配
+    2. 通配符在前的，如*.test.com
+    3. 通配符在后的，如www.test.*
+    4. 正则匹配，如~^\.www\.test\.com$
+    如果都不匹配
+    1. 优先选择listen配置项后有default或default_server的
+    2. 找到匹配listen端口的第一个server块
+* 调试代码：
+    ```
+    server{
+        default_type text/plain;
+        listen 80;
+        server_name _;
+        return 200 "no1 match";
+    }
+    server{
+        default_type text/plain;
+        listen 80;
+        server_name *.test.com;
+        return 200 "通配符在前";
+    }
+
+    server{
+        default_type text/plain;
+        listen 80;
+        server_name www.test.*;
+        return 200 "通配符在后";
+    }
+    server{
+        default_type text/plain;
+        listen 80;
+        server_name ~^www.test.com$;
+        return 200 "正则匹配";
+    }
+    server{
+        default_type text/plain;
+        listen 80;
+        server_name www.test.com;
+        return 200 "完全匹配";
+    }
+    # 把这些放到nginx.conf中，重启nginx -s reload
+    # 配置host文件 127.0.0.1 www.test.com
+    # 打开www.test.com
+    # 结果就如匹配规则一样，从前依次删除server测试，重启nginx，即可发现规律
+    # 同样的，可以改变server的顺序，也可得出第一种匹配规则和顺序无关
+    ```
+    ```
+    server{
+        default_type text/plain;
+        listen 80 default;
+        return 200 "default";
+    }
+    server{
+        default_type text/plain;
+        listen 80;
+        server_name *.test.com;
+        return 200 "通配符在前";
+    }
+    # 这个测试发现即使有defualt，但也会命中通配符在前，这说明了第一种情况的优先级高于第二种
+    ```
+    ```
+    server{
+        default_type text/plain;
+        listen 80 default;
+        server_name www.abc.com;
+        return 200 "default";
+    }
+    server{
+        default_type text/plain;
+        listen 80;
+        server_name *.test.com;
+        return 200 "通配符在前";
+    }
+    ```
+
+[匹配规则](https://www.cnblogs.com/wangzhisdu/p/7839109.html)
 ##### location匹配规则
 * 基础
     1. location 是在 server 块中配置
@@ -555,6 +632,8 @@ server {
             # 当root下没有test的文件夹的话会直接报404
         ```
         * root可以不放在location中，也可以放在http、server、if上下文中
+4. Invalid Host header
+由于 Vue 的主机检查配置导致的,1. 找到 Vue 项目中的 build 目录下的 webpack.dev.js 文件。2. 在 devServer 下添加 disableHostCheck: true ，即跳过检查，如此访问 Vue 项目时就不会进行主机检查。3.重启项目。
 ##### 参考资料
 (8分钟带你深入浅出搞懂Nginx)[https://zhuanlan.zhihu.com/p/34943332]
 (Nginx中文文档)[https://www.nginx.cn/doc/index.html]
