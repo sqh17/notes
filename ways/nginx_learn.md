@@ -13,7 +13,23 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
 * 热部署：通过master管理进程与worker工作进程的分离设计，使的Nginx具有热部署的功能，那么在7×24小时不间断服务的前提下，升级Nginx的可执行文件。也可以在不停止服务的情况下修改配置文件，更换日志文件等功能
 
 ##### 整体结构
+Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，整个配置文件是以区块的形式组织，通常每一个区块以一对大括号{}来表示开始与结束(可看下方的代码注释)。
+* Main 位于 nginx.conf 配置文件的最高层；
+    ```
+    user  nginx;
+    worker_processes  1;
 
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+    ......
+    ```
+* Main 层下可以有 Event、HTTP 层；
+    ```
+    events {}
+    http {}
+    ```
+* Http 层下面允许有多个 Server 层，用于对不同的网站做不同的配置；
+* Server 层下面允许有多个 Location，用于对不同的路径进行不同模块的配置。
 ##### 应用
 * 动静分离
     * 定义：将网站静态资源（HTML，JavaScript，CSS，img等文件）与后台应用分开部署，提高用户访问静态代码的速度，降低对后台应用访问
@@ -46,23 +62,23 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
             #http://aaa.test/docs
             #代理访问后端服务：http://localhost:8080/docs
             ```
-            2. target服务路径不需要context-path(location：/tomcat)时
+            2. target服务路径不需要context-path(location：/a)时
             ```
-            location /tomcat {
+            location /a {
                 proxy_pass http://localhost:8080/;
                 proxy_set_header Host $host;
                 proxy_set_header X-Real-IP $remote_addr;
                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  
             }
             
-            #http://localhost:1111/tomcat/docs
+            #http://localhost:1111/a/docs
             #代理访问后端服务：http://localhost:8080/docs
             ```
         2. 基于域名代理
         ```
         server {
             listen       80;
-            server_name  tomcat.local;
+            server_name  a.local;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;        
@@ -80,7 +96,7 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;    
             location / {
-                proxy_pass http://192.7.0.36:16010;            
+                proxy_pass http://192.192.192.192:16010;            
             }
         }
         ```
@@ -240,7 +256,7 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
 * $server_addr: 服务器地址
 * $server_name: 服务器名称
 * $server_port: 服务器的端口号
-* $uri: 请求中的当前 URI，已标准化。我们可以在请求处理期间更改 $uri 的值，例如在进行内部重定向或使用索引文件时。
+* \$uri: 请求中的当前 URI，已标准化。我们可以在请求处理期间更改 $uri 的值，例如在进行内部重定向或使用索引文件时。
 * $request: 完整的原始请求行
 * $request_body: 当请求正文被读取到 memory_buffer 时，该变量的值在由 proxy_pass 和 scgi_pass 指令处理的位置中可用。
 * $request_body_file: 带有请求正文的临时文件的名称。
@@ -275,7 +291,7 @@ location / {
     4. 正则匹配，如~^\.www\.test\.com$
     如果都不匹配
     1. 优先选择listen配置项后有default或default_server的
-    2. 找到匹配listen端口的第一个server块
+    2. 再不匹配的话，找到匹配listen端口的第一个server块
 * 调试代码：
     ```
     server{
@@ -318,7 +334,8 @@ location / {
     ```
     server{
         default_type text/plain;
-        listen 80 default;
+        listen 80 default_server;
+        server_name 127.0.0.1;
         return 200 "default";
     }
     server{
@@ -327,24 +344,23 @@ location / {
         server_name *.test.com;
         return 200 "通配符在前";
     }
-    # 这个测试发现即使有defualt，但也会命中通配符在前，这说明了第一种情况的优先级高于第二种
+    # 这个我测试的老是报a duplicate default server for 0.0.0.0:82 in /usr/local/etc/nginx/servers/learn.conf:65， 原因未解
+    # 网上说的即使有defualt，但也会命中通配符在前，这说明了第一种情况的优先级高于第二种
     ```
     ```
     server{
         default_type text/plain;
-        listen 80 default;
-        server_name www.abc.com;
-        return 200 "default";
+        listen 83;
+        return 200 "first";
     }
     server{
         default_type text/plain;
-        listen 80;
-        server_name *.test.com;
-        return 200 "通配符在前";
+        listen 83;
+        return 200 "last";
     }
+    #若都不匹配的话，直接取第一个
     ```
 
-[匹配规则](https://www.cnblogs.com/wangzhisdu/p/7839109.html)
 ##### location匹配规则
 * 基础
     1. location 是在 server 块中配置
@@ -521,7 +537,7 @@ http {
             
             #定义首页索引文件的名称
             index index.php index.html index.htm;   
-
+            try_files $uri index.html =404; 
         }
 
         # 定义错误提示页面
