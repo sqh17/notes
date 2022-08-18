@@ -58,6 +58,7 @@
 #### 服务器
 
 * [搭建node环境](https://github.com/sqh17/ts-study/blob/master/servers_node_build.md)
+* [nginx笔记](./ways/nginx_learn.md)
 
 #### git杂难疑症处理
 
