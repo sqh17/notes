@@ -15,6 +15,7 @@
 * [面向对象--创建对象](./ways/OO-create.html)
 * [面向对象--原型与原型链](./ways/OO-proto.html)
 * [面向对象--继承](./ways/OO-inherit.html)
+* [面向对象（纯md版）](./ways/OO.md)
 * [arguments对象](./ways/arguments.md)
 * [正则](./ways/reg.md)
 * [Promise](./ways/promise.md)
