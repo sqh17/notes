@@ -31,6 +31,7 @@
 * [rem适配](./ways/rem.js)
 * [js实现输入密码之延迟星号和点击按钮显示或隐藏](./ways/password.md)
 * [vue-router切换路由时同一组件不更新问题](./ways/vue-router-key.md)
+* [npm与yarn，pnpm的区别](./ways/npm%26yarn%26pnpm.md)
 
 
 #### ES6系列
