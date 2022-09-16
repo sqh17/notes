@@ -376,10 +376,150 @@ function fn(){
 
 ### readonly
 
+* 定义：接受一个对象 (不论是响应式还是普通的) 或是一个 ref，返回一个原值的只读代理，对任何嵌套属性的访问都将是只读的
+* 大白话：就是将一个对象（无论是响应式还是普通的）变成只读状态，一旦更改这个对象也不会生效，ts也会报警告
+* 相关示例
+
+```typescript
+import {readonly, reactive, ref} from 'vue'
+type Person = {
+    name: string,
+    age: number,
+    color?: any
+}
+const peter:Person = reactive({
+    name: 'peter',
+    age: 18,
+    color: {
+        clothesColor: 'red',
+        flowerColor: 'green'
+    }
+})
+const readonlyPeter = readonly(peter)
+function fooo():void{
+    readonlyPeter.name = 'tom';
+    readonlyPeter.color.clothesColor = 'pink'
+    console.log(readonlyPeter) // 修改不生效
+}
+```
+
+* 注意点
+    1. readonly对任何嵌套属性都是只读访问的
+    2. readonly适用于任何值，响应式，普通的，ref对象，reactive对象
+
 ### shallowReadonly
+
+* 定义：readonly() 的浅层作用形式，和 readonly() 不同，这里没有深层级的转换：只有根层级的属性变为了只读
+* 大白话，同shallowReactive，shallowRef一样的道理。
 
 ### toRef
 
+* 定义：基于响应式对象上的一个属性，创建一个对应的 ref。这样创建的 ref 与其源属性保持同步：改变源属性的值将更新 ref 的值，反之亦然。
+* 相关示例
+
+```typescript
+import {ref,toRef,Ref} from 'vue'
+type Obj = {
+    name: string,
+    age: number
+}
+// 难道只是针对reactive对象吗？？？？？？
+const o:Ref<Obj> = ref({name: 'peter',age: 18})
+let name:Ref<string> = toRef(o.value, 'name');
+let name1:Ref<string> = ref(o.value.name)
+console.log('name', name)
+console.log('name1', name1)
+function fo(){
+    name.value = 'tom';
+    console.log(o,name) // o和name都发生了改变，并且视图也更新了
+}
+function fo2(){
+    name1.value = 'tom';
+    console.log(o,name1,name) // o和name没变
+}
+function fo1(){
+    o.value.name = 'tom';
+    console.log(o,name,name1) // // o和name都发生了改变，并且视图也更新了，name1未变，未更新
+}
+```
+
+通过例子可以发现，通过toRef创建的对象同样是个ref对象，只不过依赖于源对象，一具荣一具损
+
+* 注意点：
+    1. toRef创建出来的对象和ref创建出来的对象不一样，toRef创建出来的对象依赖于源对象，若源对象变了，那么也会跟着变，而ref创建的对象是一个新值，互不影响
+    2. 当使用toRef的时候要注意源对象的声明方式，是reactive还是ref，ref创建的要使用.value
+* 相关源码
+
+```javascript
+function toRef(object, key, defaultValue) {
+    const val = object[key];
+    return isRef(val)
+        ? val
+        : new ObjectRefImpl(object, key, defaultValue);
+}
+class ObjectRefImpl {
+    constructor(_object, _key, _defaultValue) {
+        this._object = _object;
+        this._key = _key;
+        this._defaultValue = _defaultValue;
+        this.__v_isRef = true;
+    }
+    get value() {
+        const val = this._object[this._key];
+        return val === undefined ? this._defaultValue : val;
+    }
+    set value(newVal) {
+        this._object[this._key] = newVal;
+    }
+}
+```
+
+通过源码可知，首先判断选中的那个属性值是否是ref对象，若是直接返回,因为根据ref对象，嵌套的属性也是ref对象，所以会返回一个ref对象的新对象，若不是，直接new一个ObjectRefImpl对象,
+
 ### toRefs
 
+* 定义：将一个响应式对象转换为一个普通对象，这个普通对象的每个属性都是指向源对象相应属性的 ref。每个单独的 ref 都是使用 toRef() 创建的。
+* 大白话：批量版的toRef，就是将reactive对象或ref对象里的每个属性化为响应式，并相互依赖。谁变一起变。
+* 相关示例
+
+```typescript
+import {reactive, toRefs} from 'vue'
+const o = reactive({name: 'peter', age: 18})
+const {name, age} = toRefs(o)
+console.log('o', o)
+function fo(){
+    o.name = 'tom'
+    console.log(name,age,o) // 同时变
+}
+function fo1(){
+    name.value= 'cindy'
+    console.log(name, age,o) // 同时变
+}
+```
+
+通过示例可知，toRefs是把源对象的每个属性都变成了ref对象
+
+* 应用场景
+解构更方便，因为ref对象解构后会失去响应，而toRefs解构依然保持响应式
+
 ### toRaw
+
+* 定义： 根据一个 Vue 创建的代理返回其原始对象。toRaw() 可以返回由 reactive()、readonly()、shallowReactive() 或者 shallowReadonly() 创建的代理对应的原始对象
+* 大白话： 就是将响应式对象转为非响应式对象，返回未转为响应式的原始对象，
+* 相关示例
+
+```typescript
+import {toRaw, ref, Ref} from 'vue'
+const o:Ref<number> = ref(123)
+let m = toRaw(o)
+console.log(o, m)
+console.log(m === o) // true
+```
+
+* 应用场景
+做一些不想被监听的事情(提升性能)，ref/reactive数据类型的特点:每次修改都会被追踪, 都会更新UI界面, 但是这样其实是非常消耗性能的所以如果我们有一些操作不需要追踪, 不需要更新UI界面, 那么这个时候,我们就可以通过toRaw方法拿到它的原始数据, 对原始数据进行修改这样就不会被追踪, 这样就不会更新UI界面, 这样性能就好了。（例子：输入框不实时请求接口，当点击按钮时请求接口）
+
+### markRaw
+
+* 定义： 将一个对象标记为不可被转为代理。返回该对象本身
+* 大白话：将数据标记为永远不能追踪的数据，一般在编写自己的第三方库时使用
