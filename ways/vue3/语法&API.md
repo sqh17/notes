@@ -523,3 +523,195 @@ console.log(m === o) // true
 
 * 定义： 将一个对象标记为不可被转为代理。返回该对象本身
 * 大白话：将数据标记为永远不能追踪的数据，一般在编写自己的第三方库时使用
+
+### computed
+
+* 定义：接受一个 getter 函数，返回一个只读的响应式 __ref 对象__。该 ref 通过 .value 暴露 getter 函数的返回值。它也可以接受一个带有 get 和 set 函数的对象来创建一个可写的 ref 对象。
+* 相关示例
+
+```typescript
+import { ref, computed, onMounted } from 'vue'
+const name = ref(0)
+const fullName = computed<number>(() => {
+    return name.value + 1000
+})
+const llame = computed<number>({
+    get: () => {
+        return name.value + 1000
+    }
+})
+const newName = computed<number>({
+    get: () => {   // 3. 当 name 的值被修改后，触发 get 方法
+        return name.value + 10  // 95 + 10 = 105，所以newName 的值是 105
+    },
+    set: (param) => {  // 2. 下方定时器中赋值的 100 ,会作为参数传递到 set 方法 ，
+        name.value = param - 5  //   name.value 被修改 100 - 5 = 95 ，所以 name 的值是95
+    },
+})
+
+onMounted(() => {
+    setTimeout(() => {
+        newName.value = 100
+    }, 3000)  // 1. 三秒后给 newName 赋值
+})
+```
+
+```typescript
+let name:Ref<number> = ref(0)
+const plusOne = computed(() => name.value + 1, {
+  onTrack(e) {
+    // 当 name.value 被追踪为依赖时触发
+    debugger
+  },
+  onTrigger(e) {
+    // 当 name.value 被更改时触发
+    debugger
+  }
+})
+// 访问 plusOne，会触发 onTrack
+console.log(plusOne.value)
+// 更改 name.value，应该会触发 onTrigger
+name.value++
+```
+
+name是响应式对象，会影响fullName方法，llame方法
+
+* 相关源码
+
+```javascript
+var _a;
+class ComputedRefImpl {
+    constructor(getter, _setter, isReadonly, isSSR) {
+        this._setter = _setter;
+        this.dep = undefined;
+        this.__v_isRef = true;
+        this[_a] = false;
+        this._dirty = true;
+        this.effect = new ReactiveEffect(getter, () => {
+            if (!this._dirty) {
+                this._dirty = true;
+                triggerRefValue(this);
+            }
+        });
+        this.effect.computed = this;
+        this.effect.active = this._cacheable = !isSSR;
+        this["__v_isReadonly" /* ReactiveFlags.IS_READONLY */] = isReadonly;
+    }
+    get value() {
+        // the computed ref may get wrapped by other proxies e.g. readonly() #3376
+        const self = toRaw(this);
+        trackRefValue(self);
+        if (self._dirty || !self._cacheable) {
+            self._dirty = false;
+            self._value = self.effect.run();
+        }
+        return self._value;
+    }
+    set value(newValue) {
+        this._setter(newValue);
+    }
+}
+_a = "__v_isReadonly" /* ReactiveFlags.IS_READONLY */;
+function computed(getterOrOptions, debugOptions, isSSR = false) {
+    let getter;
+    let setter;
+    const onlyGetter = isFunction(getterOrOptions);
+    if (onlyGetter) {
+        getter = getterOrOptions;
+        setter = () => {
+                console.warn('Write operation failed: computed value is readonly');
+            }
+            ;
+    }
+    else {
+        getter = getterOrOptions.get;
+        setter = getterOrOptions.set;
+    }
+    const cRef = new ComputedRefImpl(getter, setter, onlyGetter || !setter, isSSR);
+    // 是否有debugger
+    if (debugOptions && !isSSR) {
+        cRef.effect.onTrack = debugOptions.onTrack;
+        cRef.effect.onTrigger = debugOptions.onTrigger;
+    }
+    return cRef;
+}
+```
+
+### watch
+
+* 定义：监听数据回调，与vue2的差别不大,额外选项多了几个参数flush（调整回调的刷新时机），onTrack / onTrigger（调试侦听器的依赖关系）
+* 文档讲解很清楚，[侦听器](https://cn.vuejs.org/guide/essentials/watchers.html)
+* 相关代码：
+示例1
+
+```javascript
+import {watch,ref, Ref} from 'vue'
+let message = ref({
+    nav:{
+        bar:{
+            name:""
+        }
+    }
+})
+watch(message, (newVal, oldVal) => {
+    console.log('新的值----', newVal);
+    console.log('旧的值----', oldVal);
+},{
+    immediate:true,
+    deep:true
+})
+```
+
+示例2
+
+```javascript
+import { ref, watch ,reactive} from 'vue'
+let message = ref('')
+let message2 = ref('')
+watch([message,message2], (newVal, oldVal) => {
+    console.log('新的值----', newVal);
+    console.log('旧的值----', oldVal);
+})
+```
+
+示例3
+
+```javascript
+import { ref, watch ,reactive} from 'vue'
+let message = reactive({
+    nav:{
+        bar:{
+            name:""
+        }
+    }
+})
+watch(message, (newVal, oldVal) => {
+    console.log('新的值----', newVal);
+    console.log('旧的值----', oldVal);
+})
+```
+
+示例4
+
+```javascript
+import { ref, watch ,reactive} from 'vue'
+let message = reactive({
+    name:"",
+    name2:""
+})
+watch(()=>message.name, (newVal, oldVal) => {
+    console.log('新的值----', newVal);
+    console.log('旧的值----', oldVal);
+})
+```
+
+* 注意点
+    1. 使用reactive监听深层对象开启和不开启deep 效果一样,因为reactive是整个属性都变成了响应式
+    2. 监听reactive数据源使用提醒:
+        1. 可以直接侦听响应式对象，会隐式地转换成深度监听
+        2. 不可以直接侦听响应式对象的属性值(因为newVal和oldVal都是同一个值)，只能通过返回该属性的 getter 函数或者转为deep：true(示例4)
+
+### watchEffect
+
+* 定义： watch() 是懒执行的：仅当数据源变化时，才会执行回调。但在某些场景中，我们希望在创建侦听器时，立即执行一遍回调，watchEffect()就是可以实现
+* 文档讲解很清楚，[侦听器](https://cn.vuejs.org/guide/essentials/watchers.html#watcheffect)
