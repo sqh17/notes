@@ -715,3 +715,91 @@ watch(()=>message.name, (newVal, oldVal) => {
 
 * 定义： watch() 是懒执行的：仅当数据源变化时，才会执行回调。但在某些场景中，我们希望在创建侦听器时，立即执行一遍回调，watchEffect()就是可以实现
 * 文档讲解很清楚，[侦听器](https://cn.vuejs.org/guide/essentials/watchers.html#watcheffect)
+
+### getCurrentInstance
+
+Vue2中，可以通过this来获取当前组件实例；
+Vue3中，在setup中无法通过this获取组件实例，console.log(this)打印出来的值是undefined。
+在Vue3中，getCurrentInstance()可以用来获取当前组件实例。进而获取$root根基节点
+
+```javascript
+const { proxy,ctx } = getCurrentInstance()
+console.log(proxy.$root.$route)
+console.log(proxy.$root.$router)
+console.log(proxy); // proxy对象
+console.log(ctx); // 普通对象
+```
+
+注意：getCurrentInstance只能在setup或生命周期钩子中使用
+
+### ref
+
+和vue2一样，需要在dom上声明ref，然后赋值，就可以直接反问该dom伤的ref
+
+```html
+<div ref="domRef"></div>
+```
+
+```javascript
+const domRef = ref(null)
+console.log(domRef) // RefImpl 对象
+```
+
+### defineProps/defineEmits/defineExpose
+
+组件传参，在\<script setup>可以直接引用。
+__defineProps__ 和 __defineEmits__ 是无须引入的直接使用。
+__defineExpose__ 子组件把内部属性暴露给父组件, 这个需要在生命周期mounted后使用，等dom加载完成
+
+```html
+<!--父组件-->
+<div>
+    <child ref="childRef" :data="obj" @on-click="getData"></child>
+</div>
+```
+
+```javascript
+let obj = reactive({
+    name: '十七',
+    age: 18
+}) // 给子组件传值
+
+const getData = (val) => {
+    console.log('val', val) // 今天天气不错
+}
+// 通过ref来接受子组件通过defineExpose暴露出来的值
+const childRef = ref(null)
+onMounted(()=>{
+    console.log('childRef',childRef.value) // childrenName,list
+})
+```
+
+```html
+<!--子组件-->
+<div>
+    {{obj.name}}
+    {{obj.age}}
+    <button @click="clickFn">click</button>
+</div>
+```
+
+```javascript
+// 接受父组件传来的值
+defineProps({
+    obj:{
+        type: Object,
+        default: ()=>{}
+    }
+})
+// 派发给父组件
+let emit = defineEmits(['on-click'])
+const clickFn = () => {
+    emit('on-click', '今天天气不错')
+}
+let childName = ref('peter')
+let list = ref([1,2,3,4,5])
+// 将子组件的内部值暴露给父组件
+defineExpose({
+    childName, list
+})
+```
