@@ -1,4 +1,5 @@
 # notes
+
 前端笔记，便于复习
 
 ----
@@ -33,7 +34,6 @@
 * [vue-router切换路由时同一组件不更新问题](./ways/vue-router-key.md)
 * [npm与yarn，pnpm的区别](./ways/npm%26yarn%26pnpm.md)
 
-
 #### ES6系列
 
 * [es6学习笔记--解构赋值](./ways/Destructuring.html)
@@ -66,6 +66,7 @@
 
 * [git checkout pathspec 'wt-sqh-intelligent2' did not match any file(s) known to git](./ways/git_checkout_problem.md)
 * [git pull Pulling without specifying how to reconcile divergent branches](./ways/git_pull_problem.md)
+* [git add index.lock': File exists](./ways/git_add_lock.md)
 
 #### docker
 
