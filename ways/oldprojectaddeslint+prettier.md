@@ -117,7 +117,7 @@ Prettier 和 Linters 的整合需要做两件事：
 eslint，prettier需要安装在开发环境配置下
 
 ```bash
-yarn add eslint perttier -D
+yarn add eslint prettier -D
 ```
 
 2. 调用eslint,初始化，自动配置eslintrc
@@ -271,6 +271,8 @@ extends: [
 ```
 
 ## 错误呈现
+
+(此问题在于之前安装过相应依赖，不在本文操作范围内)
 
 1. 执行 npm run lint 报 'prettier/prettier': context.getPhysicalFilename is not a function,主要是版本不对问题
 
