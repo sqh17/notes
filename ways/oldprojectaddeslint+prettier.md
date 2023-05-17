@@ -1,8 +1,10 @@
 # 前言
 
-该项目一开始搭建的时候没有更好的配置eslint和prettier，格式化不是很好，导致同事开发项目push的时候五花八门，所以借此机会为该项目添加eslint和prettier，为后面需求研发提升研发效率，此文也作为一篇技术文展现，记录了步骤以及遇见的问题处理。
+老项目一开始搭建的时候没有更好的配置eslint和prettier，格式化不是很好，导致同事开发项目push的时候五花八门，所以借此机会为该项目添加eslint和prettier，为后面需求研发提升研发效率，此文也作为一篇技术文展现，记录了步骤以及遇见的问题处理。
 
 ## node-sass换为sass
+
+由于在安装相关依赖时为自动重新更新node-sass依赖，导致时间过长，所以更换为sass
 
 ### 步骤
 
@@ -36,7 +38,7 @@ yarn add sass sass-loader -D
 
 #### 区别
 
-1. node-sass 是用node(调用cpp编写的libsass) 来编译sass，dart-sass是用 drat VM 来编译sass
+1. node-sass 是用node(调用cpp编写的libsass) 来编译sass，dart-sass是用 dart VM 来编译sass
 2. node-sass 是实时自动编译的，dart-sass 需要保存后才会生效
 
 #### 改动地方
@@ -301,3 +303,9 @@ module.exports = {
   presets: [['@vue/app',{ useBuiltIns: "entry" }]],
 };
 ```
+
+## 参考资料
+
+1. [Vue2项目中配置ESLint和Prettier](https://blog.csdn.net/dreamingbaobei3/article/details/124643312)
+2. [eslint+prettier+husky的配置说明](https://blog.csdn.net/weixin_42349568/article/details/121505460)
+3. [vue项目中配置eslint和prettier](https://blog.csdn.net/weixin_42349568/article/details/120937200)
