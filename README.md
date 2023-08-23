@@ -62,7 +62,7 @@
 
 * [搭建node环境](./ways/servers_node_build.md)
 * [nginx笔记](./ways/nginx_learn.md)
-* [远程服务器linux搭建nginx步骤以及问题](./ways/nginx_build.md)
+* [远程服务器linux搭建nginx步骤以及问题](./ways/nginx_install.md)
 
 #### git杂难疑症处理
 

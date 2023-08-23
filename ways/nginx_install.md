@@ -30,7 +30,7 @@ eg: 查看系统中是否安装过以上插件
 先进入到想存放的文件目录，一般是存放到/usr/local目录下，有两种方式，(本次采用第二种方式，第一种方式方法放到最后的拓展中)
 
     1. 去[官网](http://nginx.org/download/)下载对应的nginx包，通过上传文件的方式，上传到服务器下
-    2. 直接通过wget命令下载
+    2. 直接通过wget命令下载(在哪个路径下下载就是在在哪个路径下)
     `wget -c https://nginx.org/download/nginx-1.14.0.tar.gz`
 
 2. 解压nginx压缩包
