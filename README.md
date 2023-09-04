@@ -70,6 +70,7 @@
 * [git checkout pathspec 'wt-sqh-intelligent2' did not match any file(s) known to git](./ways/git_checkout_problem.md)
 * [git pull Pulling without specifying how to reconcile divergent branches](./ways/git_pull_problem.md)
 * [git add index.lock': File exists](./ways/git_add_lock.md)
+* [git reset版本回退review](./ways/git_reset.md)
 
 #### docker
 
