@@ -60,6 +60,7 @@
 
 #### 服务器
 
+* [Linux常用知识](./ways/linux_basic.md)
 * [搭建node环境](./ways/servers_node_build.md)
 * [nginx笔记](./ways/nginx_learn.md)
 * [远程服务器linux搭建nginx步骤以及问题](./ways/nginx_install.md)
