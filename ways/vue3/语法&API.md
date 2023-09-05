@@ -1,4 +1,8 @@
 
+### v-memo
+
+存一个模板的子树。在元素和组件上都可以使用。为了实现缓存，该指令需要传入一个固定长度的依赖值数组进行比较。如果数组里的每个值都与最后一次的渲染相同，那么整个子树的更新将被跳过
+
 ### ref
 
 * 定义：接受一个内部值，返回一个响应式的、可更改的 ref 对象，此对象只有一个指向其内部值的属性 .value。
@@ -149,6 +153,7 @@ function createRef(rawValue, shallow) {
 * 注意点：
     1. shallowRef对引用类型有用，对基本类型和ref一样无差别
     2. 看示例的fo5()，发现都更新，经过源码查看，是因为RefImpl的set方法，在最后都统一调用了triggerRefValue这个方法，这个方法是把所有的响应式对象给一个个调用，所以就出现都更新的情况
+    3. shallowRef和ref不能同时写，否则会影响shallowRef的视图更新
 
 #### triggerRef
 
@@ -283,7 +288,7 @@ function customRef(factory) {
 ### reactive
 
 * 定义：返回一个对象的响应式代理，响应式转换是“深层”的：它会影响到所有嵌套的属性。一个响应式对象也将深层地解包任何 ref 属性，同时保持响应性
-* 大白话：将一个对象转为响应式对象，和ref很像，但有个部分区别，只针对于引用类型，而且深度响应，就是子级以及子级的子级的变化都能检测到。并且不需要.value获取
+* 大白话：将一个对象转为响应式对象，和ref很像，但有个部分区别，只针对于`引用类型(Array,Object,Set,Map...)`，而且深度响应，就是子级以及子级的子级的变化都能检测到。并且不需要.value获取
 * 相关代码
 
 ```typescript
@@ -338,6 +343,40 @@ function createReactiveObject(target, isReadonly, baseHandlers, collectionHandle
 ```
 
 * 原理： 通过源码最后一段代码大致可知：就是将对象转为proxy对象，然后存起来，若proxyMap有该对象这直接返回，若没有就存起来
+* 注意点
+    1. reactive不能直接赋值，会破坏响应式
+
+        ```javascript
+        import {reactive} from 'vue'
+        let list = reactive([])
+        const add = ()=>{
+            setTimeout(()=>{
+                let l = [1,2,3,4]
+                list = l // 这样list是不会更新视图的，因为给覆盖了，导致破坏了响应式
+            },1000)
+        }
+        ```
+
+        上述解决方案:
+        1. 采用push 加 解构的方式
+
+        ```javascript
+        list.push(...l)
+        ```
+
+        2. 把list作为对象的一个属性，去更改对象里的属性
+
+        ```javascript
+        let obj = reactive({
+            list: []
+        })
+        const add = ()=>{
+            setTimeout(()=>{
+                let l = [1,2,3,4]
+                obj.list = l // 这样就可以更新视图了
+            },1000)
+        }
+        ```
 
 #### isReactive
 
@@ -423,7 +462,8 @@ type Obj = {
     name: string,
     age: number
 }
-// 难道只是针对reactive对象吗？？？？？？
+// 难道只是针对reactive对象吗？？？？？？ 
+// 答案: 是的，toRef/toRefs是只针对于响应式对象，非响应式对象不生效
 const o:Ref<Obj> = ref({name: 'peter',age: 18})
 let name:Ref<string> = toRef(o.value, 'name');
 let name1:Ref<string> = ref(o.value.name)
@@ -448,6 +488,7 @@ function fo1(){
 * 注意点：
     1. toRef创建出来的对象和ref创建出来的对象不一样，toRef创建出来的对象依赖于源对象，若源对象变了，那么也会跟着变，而ref创建的对象是一个新值，互不影响
     2. 当使用toRef的时候要注意源对象的声明方式，是reactive还是ref，ref创建的要使用.value
+    3. toRef只针对响应式对象，对非响应式对象不生效，视图不更新
 * 相关源码
 
 ```javascript
@@ -457,6 +498,7 @@ function toRef(object, key, defaultValue) {
         ? val
         : new ObjectRefImpl(object, key, defaultValue);
 }
+// 和RefImpl类相似，但不具有收集依赖更新视图功能，这就说明非响应式对象不生效的原因
 class ObjectRefImpl {
     constructor(_object, _key, _defaultValue) {
         this._object = _object;
@@ -479,7 +521,7 @@ class ObjectRefImpl {
 ### toRefs
 
 * 定义：将一个响应式对象转换为一个普通对象，这个普通对象的每个属性都是指向源对象相应属性的 ref。每个单独的 ref 都是使用 toRef() 创建的。
-* 大白话：批量版的toRef，就是将reactive对象或ref对象里的每个属性化为响应式，并相互依赖。谁变一起变。
+* 大白话：批量版的toRef，就是将reactive对象或ref对象里的每个属性化为响应式，并相互依赖。谁变一起变。（解构）
 * 相关示例
 
 ```typescript
