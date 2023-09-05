@@ -1,11 +1,13 @@
 ### nginx 学习笔记
 
 ##### 简介
+
 nginx是俄罗斯人Igor Sysoev编写的轻量级Web服务器。
 它不仅是一个高性能的HTTP和反向代理服务器，同时也是一个IMAP/POP3/SMTP 代理服务器
 nginx只是一个静态文件服务器或者http请求转发器，它可以把静态文件的请求直接返回静态文件资源，把动态文件的请求转发给后台服务。
 
 ##### 特点
+
 * 轻量
 * 事件驱动的异步非阻塞处理
 * 占用内存少、启动速度快、并发能力强
@@ -13,9 +15,12 @@ nginx只是一个静态文件服务器或者http请求转发器，它可以把�
 * 热部署：通过master管理进程与worker工作进程的分离设计，使的Nginx具有热部署的功能，那么在7×24小时不间断服务的前提下，升级Nginx的可执行文件。也可以在不停止服务的情况下修改配置文件，更换日志文件等功能
 
 ##### 整体结构
+
 Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，整个配置文件是以区块的形式组织，通常每一个区块以一对大括号{}来表示开始与结束(可看下方的代码注释)。
+
 * Main 位于 nginx.conf 配置文件的最高层；
-    ```
+
+    ```conf
     user  nginx;
     worker_processes  1;
 
@@ -23,35 +28,41 @@ Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，
     pid        /var/run/nginx.pid;
     ......
     ```
+
 * Main 层下可以有 Event、HTTP 层；
-    ```
+
+    ```conf
     events {}
     http {}
     ```
+
 * Http 层下面允许有多个 Server 层，用于对不同的网站做不同的配置；
 * Server 层下面允许有多个 Location，用于对不同的路径进行不同模块的配置。
+
 ##### 应用
+
 * 动静分离
-    * 定义：将网站静态资源（HTML，JavaScript，CSS，img等文件）与后台应用分开部署，提高用户访问静态代码的速度，降低对后台应用访问
-    * 优点：
+  * 定义：将网站静态资源（HTML，JavaScript，CSS，img等文件）与后台应用分开部署，提高用户访问静态代码的速度，降低对后台应用访问
+  * 优点：
         1. api接口服务化：动静分离之后，后端应用更为服务化，只需要通过提供api接口即可，可以为多个功能模块甚至是多个平台的功能使用，可以有效的节省后端人力，更便于功能维护
         2. 前后端开发并行：前后端只需要关心接口协议即可，各自的开发相互不干扰，并行开发，并行自测，可以有效的提高开发时间，也可以有些的减少联调时间
         3. 减轻后端服务器压力，提高静态资源访问速度：后端不用再将模板渲染为html返回给用户端，且静态服务器可以采用更为专业的技术提高静态资源的访问速度。
 * 反向代理
-    * 定义：指以代理服务器来接受internet上的连接请求，然后将请求转发给内部网络上的服务器，并将从服务器上得到的结果返回给internet上请求连接的客户端，此时代理服务器对外就表现为一个反向代理服务器。
+  * 定义：指以代理服务器来接受internet上的连接请求，然后将请求转发给内部网络上的服务器，并将从服务器上得到的结果返回给internet上请求连接的客户端，此时代理服务器对外就表现为一个反向代理服务器。
     简单来说就是真实的服务器不能直接被外部网络访问，所以需要一台代理服务器，而代理服务器能被外部网络访问的同时又跟真实服务器在同一个网络环境，当然也可能是同一台服务器，端口不同而已。
     对于前端而言，请求后端的接口容易报跨域问题，这就是前端所处于的ip和后端接口的ip不一致，这就用到了反向代理，通过nginx将后端的接口改成浏览器一样的的ip，（跨域除了nginx配置外，可以通过nodejs设置中转，后端设置白名单）
     反向代理是为服务端服务的，反向代理可以帮助服务器接收来自客户端的请求，帮助服务器做请求转发，负载均衡等。
     反向代理对服务端是透明的，对我们是非透明的，即我们并不知道自己访问的是代理服务器，而服务器知道反向代理在为他服务。
-    * 关键命令：proxy_pass
-    * 作用：
+  * 关键命令：proxy_pass
+  * 作用：
         1. 安全：隐藏服务节点的IP，将服务节点置于防火墙之后，避免直接攻击业务节点服务器
         2. 服务节点更专注于业务，同时提升性能（去让nginx实现gzip压缩，https等等；动静分离，缓存机制，）
-    * 三种模式
+  * 三种模式
         1. 基于IP（路径path）代理
             location后的path带不带/没有区别，proxy_pass后的路径带不带‘/’ 区别很大.
             1. target服务路径需要context-path(location： /docs)时
-            ```
+
+            ```conf
             location /docs{
                 proxy_pass http://localhost:8080;
                 proxy_set_header Host $host;
@@ -62,8 +73,10 @@ Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，
             #http://aaa.test/docs
             #代理访问后端服务：http://localhost:8080/docs
             ```
+
             2. target服务路径不需要context-path(location：/a)时
-            ```
+
+            ```conf
             location /a {
                 proxy_pass http://localhost:8080/;
                 proxy_set_header Host $host;
@@ -74,8 +87,10 @@ Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，
             #http://localhost:1111/a/docs
             #代理访问后端服务：http://localhost:8080/docs
             ```
+
         2. 基于域名代理
-        ```
+
+        ```conf
         server {
             listen       80;
             server_name  a.local;
@@ -87,8 +102,10 @@ Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，
             }
         }
         ```
+
         3. 基于端口代理
-        ```
+
+        ```conf
         server {
             listen       16010;
             server_name  localhost;
@@ -100,24 +117,25 @@ Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，
             }
         }
         ```
-    * eg：这三种模式的反向代理除了基于ip其他的情况都是根据locaiton的根域名为/来设置的，这样的可以通过访问域名/端口代理了。
+  * eg：这三种模式的反向代理除了基于ip其他的情况都是根据locaiton的根域名为/来设置的，这样的可以通过访问域名/端口代理了。
 * 正向代理
-    * 定义：
+  * 定义：
     与反向代理相反，翻墙，就是所谓的正向代理。有个恰当的例子：多个人找代购购买同一个商品，代购找到买这个的店后一次性给买了。这个过程中，该店主是不知道代购是帮别代买买东西的。那么代购对于多个想买商品的顾客来讲，他就充当了正向代理。
     正向代理是为我们服务的，即为客户端服务的，客户端可以根据正向代理访问到它本身无法访问到的服务器资源。
     向代理对我们是透明的，对服务端是非透明的，即服务端并不知道自己收到的是来自代理的访问还是来自真实客户端的访问
-    * 缺点：不能直接应用于https，需要特制配置，见示例
-    * 代码示例（未实践，回头实践）看 (Nginx服务器---正向代理)[https://blog.csdn.net/weixin_42751488/article/details/124148392]
+  * 缺点：不能直接应用于https，需要特制配置，见示例
+  * 代码示例（未实践，回头实践）看 [Nginx服务器---正向代理](https://blog.csdn.net/weixin_42751488/article/details/124148392)
 * 负载均衡
-    * 定义：简单而言就是当有2台或2台以上服务器时，根据规则随机的将请求分发到指定的服务器上处理，以来减轻服务器的压力。
+  * 定义：简单而言就是当有2台或2台以上服务器时，根据规则随机的将请求分发到指定的服务器上处理，以来减轻服务器的压力。
     负载均衡配置一般都需要同时配置反向代理，通过反向代理跳转到负载均衡。
-    * 关键命令: upstream
-    * 作用：
+  * 关键命令: upstream
+  * 作用：
         1. 分摊服务器集群压力
         2. 保证客户端访问的稳定性（nginx自带心跳检查，会定期轮询向所有的服务器发起请求，用来检查某个服务器是否异常，若有异常，则停止请求到这个服务器，直到这个服务器正常）
-    * 策略：Nginx目前支持自带3种负载均衡策略，两种常见的第三方负载均衡策略
+  * 策略：Nginx目前支持自带3种负载均衡策略，两种常见的第三方负载均衡策略
         1. 默认：按照时间一次分配到不同的机器上
-            ```
+
+            ```conf
             upstream test {
                 server localhost:8080;
                 server localhost:8081;
@@ -133,31 +151,39 @@ Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，
                 }
             }
             ```
+
         2. 权重 weight:指定轮询几率，weight和访问比率成正比，用于后端服务器性能不均的情况。
-            ```
+
+            ```conf
             upstream test {
                 server localhost:8080 weight=9;  #请求的 90% 进入到8080服务器
                 server localhost:8081 weight=1;  #请求的 10% 进入到8081服务器
             }
             ```
+
         3. ip_hash：每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题，通过session/cookie共享，来指定跳到对应有session/cookie的服务器，（如果客户已经访问了某个服务器，当用户再次访问时，会将该请求通过哈希算法，自动定位到该服务器。）
-            ```
+
+            ```conf
             upstream test {
                 ip_hash;
                 server localhost:8080 weight=9;  #请求的 90% 进入到8080服务器
                 server localhost:8081 weight=1;  #请求的 10% 进入到8081服务器
             }
             ```
+
         4. fair（第三方）：按后端服务器的响应时间来分配请求，响应时间短的优先分配。
-            ```
+
+            ```conf
             upstream test {
                 fair;
                 server localhost:8080 weight=9;  #请求的 90% 进入到8080服务器
                 server localhost:8081 weight=1;  #请求的 10% 进入到8081服务器
             }
             ```
+
         5. url_hash（第三方）：按访问url的hash结果来分配请求，使每个url定向到同一个（对应的）后端服务器，后端服务器为缓存时比较有效。
-            ```
+
+            ```conf
             upstream test {
                 server squid1:3128;
                 server squid2:3128;
@@ -165,15 +191,17 @@ Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，
                 hash_method crc32;
             }
             ```
+
 * 虚拟主机
     1. 虚拟主机就是将一台服务器分割成多个“虚拟服务器”，每个站点使用各自的硬盘空间，由于省资源，省钱，众多网站都使用虚拟主机来部署网站
     2. 虚拟主机的概念就是在web服务里的一个独立的网站站点，这个站点对应独立的域名（IP），具有独立的程序和资源目录，可以独立的对外提供服务
     3. 这个独立的站点配置是在nginx.conf中使用server{}代码块标签来表示一个虚拟主机
     4. Nginx支持多个server{}标签，即支持多个虚拟主机站点
     5. 本地测试的话需要配置host
-    * 类型
+  * 类型
         1. 基于 IP 的虚拟主机
-        ```
+
+        ```conf
         server {
             listen  80;#监听端口
             server_name  192.168.1.1;#配置虚拟主机名和IP
@@ -195,8 +223,10 @@ Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，
             }
         }
         ```
+
         2. 基于域名的虚拟主机
-        ```
+
+        ```conf
         server {
             listen  80;#监听端口
             server_name  www.cainiaojc.com;#配置虚拟主机域名
@@ -218,8 +248,10 @@ Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，
             }
         }
         ```
+
         3. 基于端口的虚拟主机
-        ```
+
+        ```conf
         server {
             listen  8080;#监听端口
             server_name  www.cainiaojc.com;#配置虚拟主机域名
@@ -243,7 +275,9 @@ Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，
         ```
 
 ##### nginx内置全局变量
+
 以下都是nginx的部分内置全局变量，可以在配置的任何位置使用
+
 * $host : 请求信息中的Host，若请求中没有host行，则等于设置的服务器名
 * $request_mothed: 客户端的请求类型，如get/post/put
 * $remote_addr: 客户端的ip
@@ -263,14 +297,18 @@ Nginx 主配置文件 /etc/nginx/nginx.conf 是一个纯文本类型的文件，
 * $request_uri: 带有参数的完整原始请求 URI（统一资源标识符）。
 
 ##### nginx变量
+
 在配置文件中，可以通过变量，来上下文使用
 用法就是用 __$__ 来命名变量
-```
+
+```sh
 set $a "hello world";  
 #这样在nginx.conf文件中都能用到
 ```
+
 例子：移动端和pc端切换.
-```
+
+```conf
 location / {
     # 适配移动端/PC端配置
     set $type "pc";
@@ -281,8 +319,11 @@ location / {
     index  index.html index.htm;
 }
 ```
+
 ##### 多个server同一个server_name匹配规则
+
 客户端发出一个http请求时，nginx收到后会取出header头中的host，与nginx.conf中每个server的server_name进行匹配，以此决定到底由哪一个server块来处理这个请求。
+
 * 匹配规则：
 
     1. 完全匹配
@@ -293,7 +334,8 @@ location / {
     1. 优先选择listen配置项后有default或default_server的
     2. 再不匹配的话，找到匹配listen端口的第一个server块
 * 调试代码：
-    ```
+
+    ```conf
     server{
         default_type text/plain;
         listen 80;
@@ -331,7 +373,8 @@ location / {
     # 结果就如匹配规则一样，从前依次删除server测试，重启nginx，即可发现规律
     # 同样的，可以改变server的顺序，也可得出第一种匹配规则和顺序无关
     ```
-    ```
+
+    ```conf
     server{
         default_type text/plain;
         listen 80 default_server;
@@ -347,7 +390,8 @@ location / {
     # 这个我测试的老是报a duplicate default server for 0.0.0.0:82 in /usr/local/etc/nginx/servers/learn.conf:65， 原因未解
     # 网上说的即使有defualt，但也会命中通配符在前，这说明了第一种情况的优先级高于第二种
     ```
-    ```
+
+    ```conf
     server{
         default_type text/plain;
         listen 83;
@@ -362,6 +406,7 @@ location / {
     ```
 
 ##### location匹配规则
+
 * 基础
     1. location 是在 server 块中配置
     2. 可以根据不同的 URI 使用不同的配置（location 中配置），来处理不同的请求
@@ -369,30 +414,35 @@ location / {
 * 规则
     1. / 代表任意匹配
     2. /api 要求必须以指定模式开始
-    ```
+
+    ```conf
     location /api{
-		#规则
-	}
+      #规则
+    }
     # 以下访问都是正确的
-    # http://127.0.0.1/api
-    # http://127.0.0.1/api?p1=TOM
-    # http://127.0.0.1/api/
-    # http://127.0.0.1/apiapi
+    # <http://127.0.0.1/api>
+    # <http://127.0.0.1/api?p1=TOM>
+    # <http://127.0.0.1/api/>
+    # <http://127.0.0.1/apiapi>
     ```
+
     3. = : 用于不包含正则表达式的uri前，必须与指定的模式精确匹配
-    ```
+
+    ```conf
     location =/api{
-		#规则
-	}
+      #规则
+    }
     # 可以匹配到
-    # http://127.0.0.1/api
-    # http://127.0.0.1/api?p1=TOM
+    # <http://127.0.0.1/api>
+    # <http://127.0.0.1/api?p1=TOM>
     # 匹配不到
-    # http://127.0.0.1/api/
-    # http://127.0.0.1/apiapi
+    # <http://127.0.0.1/api/>
+    # <http://127.0.0.1/apiapi>
     ```
+
     4. ～ ：大小写敏感
-    ```
+
+    ```conf
     location ~ /Example/ {
             #规则
     }
@@ -401,8 +451,10 @@ location / {
     # 匹配不到
     #http://127.0.0.1/example/
     ```
+
     5. ～* ： 大小写忽略
-    ```
+
+    ```conf
     location ~* /Example/ {
             #规则
     }
@@ -410,8 +462,10 @@ location / {
     #http://127.0.0.1/Example/
     #http://127.0.0.1/example/
     ```
+
     6. ^～ ： 只匹配以 uri 开头,用于不包含正则表达式的uri前，功能和不加符号的一致，唯一不同的是，如果模式匹配，那么就停止搜索其他模式了
-    ```
+
+    ```conf
     location ^~ /img/ {
             #规则
     }
@@ -419,8 +473,10 @@ location / {
     #http://local.learn.com/img/a.jpg
     #http://local.learn.com/img/b.mp4
     ```
+
     7. @ nginx内部跳转
-    ```
+
+    ```conf
     location /img/ {
         error_page 404 @img_err;
     }
@@ -430,14 +486,17 @@ location / {
     }
     #以 /img/ 开头的请求，如果链接的状态为 404。则会匹配到 @img_err 这条规则上。
     ```
+
 * 匹配顺序
     多个location配置的情况下匹配顺序为（当有匹配成功时候，停止匹配，按当前匹配规则处理请求）：
     1. 优先匹配 =
     2. 其次匹配 ^~
     3. 按照文件中的匹配顺序执行
     4. 最后匹配 /
+
 ##### 代码注释
-```
+
+```conf
 #运行用户
 user nobody;
 #启动进程,通常设置成和cpu的数量相等
@@ -569,22 +628,27 @@ http {
     }
 }
 ```
+
 ##### 代码示例
+
 1. 重定向
 301 是永久重定向，302 是临时跳转，
 主要的区别在于搜索引擎对此的对待方式:
     * 301：搜索引擎会将权重和 PR 值进行转移
     * 302：搜索引擎不会进行额外处理
-```
+
+```conf
 server {
   listen 80;
   server_name ~^(?:www\.)?(.+)$;
   return 301 https://$1$request_uri;
 }
 ```
+
 代码解释：在 http 对应的 sever 中，把 server_name 也改为正则模式，并将 $host 用捕获的根域名 $1 取代www 在这里会直接弃掉，所以不需要捕获，使用 ?: 标示实现只分组不捕获，于是后面的根域名就成了 $1这样的结果是不管原来是否带 www，都统一跳转到不带 www 的 https 根域名
 2. 防盗链
-```
+
+```conf
 location ~* \.(gif|jpg|jpeg|png|bmp|swf)$ {
     valid_referers none blocked 192.168.0.103; # 只允许本机IP外链引用
     if ($invalid_referer){
@@ -592,8 +656,10 @@ location ~* \.(gif|jpg|jpeg|png|bmp|swf)$ {
     }
 }
 ```
+
 3. 解决跨域
-```
+
+```conf
 server {
     listen       8080;        
     server_name  localhost;
@@ -607,8 +673,10 @@ server {
     }
 }
 ```
+
 4. 设置访问白名单
-```
+
+```conf
 server {
     listen       8080;        
     server_name  localhost;
@@ -622,24 +690,56 @@ server {
 }
 ```
 
+5. 开启目录索引功能
+
+```conf
+location /2589/{
+  autoindex on;  #默认为 off，不允许列出整个目录的
+  alias /Users/shiqinghao/study/; #设置需要映射的文件的真实目录。 alias 设置的目录是准确的。
+ # root # 设置需要映射的文件的家目录。root 设置的目录是根目录
+  autoindex_localtime on; #默认为off，显示的文件时间为GMT时间
+ autoindex_exact_size on; #默认为 on，显示出文件的确切大小，单位是bytes。改为 off 后，显示出文件的大概大小，单位是kB或者MB或者GB
+}
+```
+
+6. 可以设置多个静态文件访问
+
+```conf
+server{
+ location /static/{
+  alias /var/www/static/;
+  alias /var/www/images/;
+  alias /var/www/css/;
+  alias /var/www/js/;
+ }
+}
+
+```
+
+通过alias指令加载了/var/www/static, /var/www/images, /var/www/css, /var/www/js等多个静态资源文件目录
+
 ##### 注意事项
+
 1. 配置server时，server_name所绑定的ip或者域名需要在host文件中添加，要不然会报找不到文件。
 2. 当访问时出现502时，代表所代理的服务没有启动/或者翻墙软件开启了。
 3. alias和root的区别
     1. alias
         * alias不会拼接location后面配置的路径，会把它丢弃掉，把当前匹配到的目录指向到指定的目录
-        ```
+
+        ```conf
             location /test {
                 alias /myTest/nginxTest;
             }
             # 访问地址为：localhost/test/nginxTest.html-->文件目录：/myTest/nginxTest/nginxTest.html
         ```
+
         * 使用alias时，目录名后面一定要加"/"，否则会找不到文件
         * alias在使用正则匹配时，必须捕捉要匹配的内容并在指定的内容处使用
         * alias只能位于location块中
     2. root
         * root会拼接location后面配置的路径
-        ```
+
+        ```conf
             location /test {
                 root /myTest/nginxTest;
             }
@@ -647,10 +747,13 @@ server {
             # 说明root把匹配的字符/test拼接到了文件路径中
             # 当root下没有test的文件夹的话会直接报404
         ```
+
         * root可以不放在location中，也可以放在http、server、if上下文中
 4. Invalid Host header
 由于 Vue 的主机检查配置导致的,1. 找到 Vue 项目中的 build 目录下的 webpack.dev.js 文件。2. 在 devServer 下添加 disableHostCheck: true ，即跳过检查，如此访问 Vue 项目时就不会进行主机检查。3.重启项目。
+
 ##### 参考资料
-(8分钟带你深入浅出搞懂Nginx)[https://zhuanlan.zhihu.com/p/34943332]
-(Nginx中文文档)[https://www.nginx.cn/doc/index.html]
-(Nginx 教程)[https://www.cainiaojc.com/nginx/nginx-index.html]
+
+[8分钟带你深入浅出搞懂Nginx](https://zhuanlan.zhihu.com/p/34943332)
+[Nginx中文文档](https://www.nginx.cn/doc/index.html)
+[Nginx 教程](https://www.cainiaojc.com/nginx/nginx-index.html)
