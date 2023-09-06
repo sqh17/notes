@@ -1,10 +1,13 @@
 let activeEffect;
-export const effect = (fn) => {
+export const effect = (fn, options) => {
   const _effect = function () {
     activeEffect = _effect;
-    fn()
+    let res = fn()
+    return res
   }
+  _effect.options = options
   _effect()
+  return _effect
 }
 
 
@@ -31,5 +34,11 @@ export const trigger = (target, key) => {
     throw Error('error')
   }
   const deps = depsMap.get(key)
-  deps.forEach(effect => effect())
+  deps.forEach(effect => {
+    if(effect?.options?.scheduler){
+      effect?.options?.scheduler?.()
+    }else{
+      effect()
+    }
+  })
 }

@@ -574,6 +574,7 @@ console.log(m === o) // true
 ```typescript
 import { ref, computed, onMounted } from 'vue'
 const name = ref(0)
+// 函数式写法
 const fullName = computed<number>(() => {
     return name.value + 1000
 })
@@ -582,6 +583,7 @@ const llame = computed<number>({
         return name.value + 1000
     }
 })
+// 选项式写法
 const newName = computed<number>({
     get: () => {   // 3. 当 name 的值被修改后，触发 get 方法
         return name.value + 10  // 95 + 10 = 105，所以newName 的值是 105
@@ -678,6 +680,9 @@ function computed(getterOrOptions, debugOptions, isSSR = false) {
     return cRef;
 }
 ```
+
+* 注意点
+    1. computed有两种写法，一个是选项式写法，可以修改值，一个是函数式写法，不可以修改值
 
 ### watch
 
