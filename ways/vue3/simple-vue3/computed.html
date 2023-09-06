@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>模拟computed</title>
+  </head>
+
+  <body>
+    <div id="a"></div>
+    <button id="btn1">显示computed的值</button>
+    <button id="btn">add</button>
+    <script type="module">
+      import {reactive} from './reactive.js';
+      import {effect} from './effect.js';
+      import {computed} from './computed.js';
+      window.a = reactive({name: 'peter', age: 18});
+      effect(() => {
+        document.querySelector('#a').innerHTML = `name: ${a.name}<br/> age: ${a.age}`;
+      });
+      window.b = computed(() => {
+        console.log('重新计算');
+        return a.age + 10;
+      });
+      document.querySelector('#btn1').addEventListener('click', () => {
+        console.log('b的值：', b.value);
+      });
+      document.querySelector('#btn').addEventListener('click', () => {
+        a.age = a.age + 5;
+        console.log('add后：b的值', b.value);
+      });
+    </script>
+  </body>
+</html>
