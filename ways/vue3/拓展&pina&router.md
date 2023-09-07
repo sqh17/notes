@@ -1,14 +1,196 @@
+### 动态组件
+
+动态组件component，可以根据不同条件来显示不同的组件
+
+```html
+  <component :is="comId"></component>
+```
+
+```javascript
+import A from './a.vue'
+import B from './b.vue'
+import C from './c.vue'
+let comId = ref(A)
+```
+
+通过源码可知，会区分两种渲染模式，要是字符串就走resolveAsset方法，若是组件，则走render-patch方式
+
+### 插槽slot
+
+`<slot>` 元素是一个插槽出口 (slot outlet)，标示了父元素提供的插槽内容 (slot content) 将在哪里被渲染
+`父组件模板中的表达式只能访问父组件的作用域；子组件模板中的表达式只能访问子组件的作用域。`
+
+* 具名插槽
+  可以指定名字，以及在父组件中对相应的插槽进行渲染
+
+  ```html
+  <!-- dialog.vue -->
+  <div class="container">
+    <header>
+      <slot name="header"></slot>
+    </header>
+    <main>
+      <slot></slot>
+    </main>
+    <footer>
+      <slot name="footer"></slot>
+    </footer>
+  </div>
+  ```
+
+  ```html
+  <!-- app.vue -->
+  <dialog>
+    <!-- 这个是具名插槽 -->
+    <template v-slot="header">
+      <div>头部</div>
+    </template>
+    <!-- 这个是默认插槽 -->
+    <!-- 可以这样用#default -->
+    <template v-slot>
+      <div>中间</div>
+    </template>
+    <!-- 可以用#+name来使用 -->
+    <template #footer>
+      <div>尾部</div>
+    </template>
+  </dialog>
+  ```
+
+* 动态插槽
+
+  ```html
+  <!-- app.vue -->
+  <dialog>
+    <!-- 缩写可以这样写 #[slotName] -->
+    <template v-slot:[slotName]>
+      <div>头部</div>
+    </template>
+  </dialog>
+  ```
+
+  ```javascript
+  import {ref} from 'vue'
+  let slotName = ref('header')
+  ```
+
+* 作用域插槽
+  就是子组件的数据可以通过attribute向插槽出口传递到父组件
+
+  ```html
+  <!-- dialog.vue -->
+  <div class="container">
+    <header>
+      <slot name="header" :data='headerData'></slot>
+    </header>
+    <main>
+      <slot :data="mainData"></slot>
+    </main>
+    <footer>
+      <slot name="footer" :data="footerData"></slot>
+    </footer>
+  </div>
+  ```
+
+  ```javascript
+  // dialog.vue
+  import {ref} from 'vue'
+  let headerData = reactive({name: 'peter', age: 18})
+  let mainData = reactive([1,2,3])
+  let footerData = reactive({name: 'peter', age: 18})
+  ```
+
+  ```html
+  <!-- app.vue -->
+  <dialog>
+    <template #header='headerProps' >
+      <div>{{headerProps.data.name}}</div>
+    </template>
+    <template #default='mainData >
+      <div>{{mainData.data}}</div>
+    </template>
+    <template #footer='{data} >
+      <div>{{data.name}}</div>
+    </template>
+  </dialog>
+  ```
+
+* 注意点
+  1. 插槽不能再嵌套插槽
+
 ### 异步组件&代码分包
 
 在大型应用中，我们可能需要将应用分割成小一些的代码块 并且减少主包的体积,这时候就可以使用异步组件。
 在setup语法糖里面 使用方法
 `<script setup> 中可以使用顶层 await。结果代码会被编译成 async setup()`
-父组件引用子组件 通过defineAsyncComponent加载异步配合import 函数模式便可以分包
+父组件引用子组件 通过defineAsyncComponent加载异步配合import 函数模式便可以分包，分包的意思就是，异步组件在打包的时候会单独提出来
 
 ```javascript
+// app.vue
 import { defineAsyncComponent } from 'vue'
 const Dialog = defineAsyncComponent(() => import('../Dialog/index.vue'))
 ```
+
+使用例子可以参考下面Suspense的例子
+
+```html
+<!-- Dialog/index.vue -->
+<template>
+  <div>哈哈哈</div>
+</template>
+<script setup>
+const post = await fetch(`/api/post/1`).then(r => r.json())
+</script>
+```
+
+* 注意点
+  1. defineAsyncComponent有两种写法，一个是导入，一个是对象形式
+
+    ```javascript
+    const Dialog = defineAsyncComponent(() => import('../../components/Dialog/index.vue'))
+    
+    //完整写法
+    
+    const AsyncComp = defineAsyncComponent({
+      // 加载异步组件时使用的组件
+      loadingComponent: Dialog,
+      // 展示加载组件前的延迟时间，默认为 200ms
+      delay: 200,
+      // 加载失败后展示的组件
+      errorComponent: ErrorComponent,
+      // 如果提供了一个 timeout 时间限制，并超时了
+      // 也会显示这里配置的报错组件，默认值是：Infinity
+      timeout: 3000
+    })
+    ```
+
+### Suspense
+
+* 定义：`<Suspense>` 是一个内置组件，用来在组件树中协调对异步依赖的处理。它让我们可以在组件树上层等待下层的多个嵌套异步依赖项解析完成，并可以在等待时渲染一个加载状态
+* 大白话：比如说有两个异步组件，需要通过异步请求才能显示组件，这期间就得等待空白，有了 `<Suspense>` 组件后，我们就可以在等待整个多层级组件树中的各个异步依赖获取结果时，在顶层展示出加载中或加载失败的状态
+Suspense 组件有两个插槽：#default 和 #fallback。两个插槽都只允许一个直接子节点。在可能的时候都将显示默认槽中的节点。否则将显示后备槽中的节点。
+
+```html
+<!-- app.vue -->
+<template>
+  <Suspense>
+    <template #default>
+      <!-- 具有深层异步依赖的组件 -->
+      <Dialog />
+    </template>
+
+    <template #fallback>
+        <div>loading...</div>
+    </template>
+  </Suspense>
+</template>
+<script setup>
+import { defineAsyncComponent } from 'vue'
+const Dialog = defineAsyncComponent(() => import('../Dialog/index.vue'))
+</script>
+```
+
+这个示例就是当Dashboard未加载完时，就先展示loading
 
 ### Teleport
 
