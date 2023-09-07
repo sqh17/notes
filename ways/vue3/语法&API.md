@@ -943,3 +943,28 @@ defineExpose({
     childName, list
 })
 ```
+
+ts的写法
+
+```typescript
+// widthDefaults设置默认值
+widthDefaults(defineProps<{
+    arr:number[],
+    str: string
+}>(),{
+    arr:[1,2,3],
+    str: '1'
+})
+
+const emits = defineEmits<{
+    (e: 'on-click', name: string):void
+    (e: 'goto', arr: number[]):void
+}>()
+emits('on-click', 'peter')
+emits('goto', [1,2,3,4])
+
+<son ref="sonRef"></son>
+import sonVue from './son.vue'
+const sonRef = ref<InstanceType<typeof sonVue>>()
+
+```
