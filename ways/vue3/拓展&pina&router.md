@@ -218,6 +218,10 @@ Teleport 是一种能够将我们的模板渲染至指定DOM节点，不受父�
 </Teleport>
 ```
 
+### transition过渡
+
+[官网解释超详细](https://cn.vuejs.org/guide/built-ins/transition.html#css-based-transitions)
+
 ### inject/provide
 
 1. provide:提供可以被后代组件注入的值
