@@ -233,8 +233,8 @@ Teleport 是一种能够将我们的模板渲染至指定DOM节点，不受父�
     * 第一个参数是接受的属性名，
     * 第二参数是默认值。
 
-只要是父子关系/父孙关系等等都可以注入，遵遁单项数据流。
-可以设置成响应式
+只要是父子关系/祖孙关系等等都可以注入，遵遁单项数据流。
+但可以设置成响应式，但不推荐子组件修改父组件的值
 
 ```javascript
 // 父组件
@@ -267,6 +267,62 @@ let sonData = inject('sonData')
 let obj = ref(parentData)
 let obj1 = ref(sonData)
 ```
+
+* 注意点
+  1. provide可以设置值为readonly，防止子组件修改父组件的值
+  2. inject可以设置个默认值
+
+### eventBus 事件总线
+
+兄弟之间的传值的方式可以使用事件总线，定义一个类，然后设置emit和on来分发和订阅，在每个组件里调用这个类，使用emit和on
+
+代码示例
+
+```typescript
+type BusClass = {
+  emit:(name: string) => void,
+  on:(name: string, callback: Function) => void
+}
+
+type ParamsKey = string | number | symbol
+
+type List = {
+  [key: ParamsKey]: Array<Function>
+}
+
+class eventBus implements BusClasss {
+  list:List,
+  constructor(){
+    this.list = {}
+  }
+  emit(name: string, ...args: Array<any>){
+    let eventName: Array<Function> = this.list[name]
+    eventName.forEach((fn)=>{
+      fn.apply(this, args)
+    })
+  }
+  on(name: string, callback: Function){
+    let fn:Array<Function> = this.list[name] || []
+    fn.push(callback)
+    this.list[name] = fn
+  }
+  off(name: string, callback: Function) {
+    const callbacks = this.list[name];
+    if (callbacks) {
+      if (callback) {
+        const index = callbacks.indexOf(callback);
+        if (index !== -1) {
+          callbacks.splice(index, 1);
+        }
+      } else {
+        delete this.list[name];
+      }
+    }
+  }
+}
+```
+
+
 
 ### 全局变量
 
