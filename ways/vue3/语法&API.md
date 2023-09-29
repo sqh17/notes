@@ -121,13 +121,13 @@
     }
     function fo4():void{
         dd.value[2] = 1000
-        console.log(dd)
+        console.log(dd)// 值更新，视图未更新
     }
     function fo5():void{
         aa.value ++
         bb.value ++
         cc.value.color.clothesColor = 'blue'
-        console.log(aa,bb,cc) // aa,bb,cc全都更新，包括视图也更新
+        console.log(aa,bb,cc) // aa,bb，cc全都更新，包括视图也更新
     }
 
     ```
@@ -153,7 +153,8 @@
 * 注意点：
     1. shallowRef对引用类型有用，对基本类型和ref一样无差别
     2. 看示例的fo5()，发现都更新，经过源码查看，是因为RefImpl的set方法，在最后都统一调用了triggerRefValue这个方法，这个方法是把所有的响应式对象给一个个调用，所以就出现都更新的情况
-    3. shallowRef和ref不能同时写，否则会影响shallowRef的视图更新
+    3. shallowRef和ref不能同时写，否则ref更新会影响shallowRef的视图更新，例如示例fo5()
+    4. shallowRef对引用类型时，想要视图更新，可以使用triggerRef(cc)来更新
 
 #### triggerRef
 
@@ -377,6 +378,8 @@
             },1000)
         }
         ```
+
+        3. 或者转为ref使用
 
 #### isReactive
 
@@ -694,9 +697,9 @@ console.log(m === o) // true
       * immediate：在侦听器创建时立即触发回调。第一次调用时旧值是 undefined。
       * deep：如果源是对象，强制深度遍历，以便在深层级变更时触发回调（reactive对象默认使用了deep）。
       * flush：调整回调函数的刷新时机，有以下三个值：
-    1. pre 默认值，组件更新之前调用
-    2. post 侦听器回调中能访问被Vue更新之后的DOM，意思就是等待dom加载完毕后使用回调函数
-    3. sync 同步实行
+            1. pre 默认值，组件更新之前调用
+            2. post 侦听器回调中能访问被Vue更新之后的DOM，意思就是等待dom加载完毕后使用回调函数
+            3. sync 同步实行
 
     * onTrack / onTrigger：调试侦听器的依赖。
 * 文档讲解很清楚，[侦听器](https://cn.vuejs.org/guide/essentials/watchers.html)
@@ -788,12 +791,12 @@ console.log(m === o) // true
 
     ```javascript
     import {watchEffect,ref, reactive} from 'vue'
-        let message = ref('peter')
-        let obj = reactive({name: 'peter'})
-        watchEffect(()=>{
-            console.log('message', message.value)
-            console.log('obj', obj)
-        })
+    let message = ref('peter')
+    let obj = reactive({name: 'peter'})
+    watchEffect(()=>{
+        console.log('message', message.value)
+        console.log('obj', obj)
+    })
     ```
 
     一进页面会触发一次，之后修改了message/obj也会触发
