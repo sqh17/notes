@@ -322,7 +322,234 @@ class eventBus implements BusClasss {
 }
 ```
 
+### jsx/tsx用法（大致，就是学习，还没深入）
 
+vue的jsx/tsx写法和react大致一样
+
+* 使用方式：
+
+  1. 先引入`@vitejs/plugin-vue-jsx`
+    在vite.config.js使用
+
+    ```javascript
+    import vueJsx from '@vitejs/plugin-vue-jsx';
+    export default defineConfig({
+      plugins: [...,vueJsx()]
+    })
+    ```
+
+    tsconfig.js改些配置
+
+    ```javascript
+    {
+      ...,
+      "jsx": "preserve",
+      "jsxFactory": "h",
+      "jsxFragmentFactory": "Fragment",
+    }
+    ```
+
+    然后vue就可以识别以.jsx/.tsx后缀名的文件了
+* 书写方式
+  1. 返回一个渲染函数
+
+    ```typescript
+    import {ref} from 'vue'
+    let name:string = 'peter'
+    export default function (){
+      
+      return (<div>{name}, hello</div>)
+    }
+    ```
+
+  2. optionsAPI（少见）
+
+    ```typescript
+    import {defineComponent} from 'vue'
+    export default defineComponent({
+      data(){
+        return {
+          name: 'peter'
+        }
+      },
+      method:{
+
+      },
+      render(){
+        return (<div>{this.name}</div>)
+      }
+    }
+    ```
+
+  3. setup函数模式
+
+    ```typescript
+      import {defineComponent, ref} from 'vue'
+      export default defineComponent({
+        setup(){
+          let name = ref('peter')
+          return (<div>{name.value}</div>)
+        }
+      }
+      ```
+
+* 用法
+
+  1. jsx/tsx支持v-model和v-show，***v-bind***（v-bind不支持，需要使用自定义属性）
+
+    ```tsx
+    import {ref} from 'vue'
+    let name:string = 'peter'
+    let val = ref<string>('123')
+    let flag = ref<boolean>(false)
+    export default ()=>{
+      return (
+      <div>
+        <div>{name}, hello</div>
+        <hr />
+        {/* v-model */}
+        <input v-model={val.value} type="text" />
+        <div>{val.value}</div>
+        <hr />
+        {/* v-show */}
+        <div v-show={!flag.value}>显示</div>
+        <div v-show={flag.value}>隐藏</div>
+        <hr />
+        {/* ！！！v-bind */}
+        <div data-name={'name'}>哈哈哈</div>
+      </div>
+      )
+    }
+
+    ```
+  
+  * 注意点：tsx无法解包ref，所以需要加value
+
+  2.不支持v-if和v-for需要通过js变成方式去使用
+
+    ```typescript
+    import {defineComponent, reactive, ref} from 'vue'
+    let flag = ref<boolean>(false)
+    interface List {
+      name: string;
+      age: number;
+    }
+    let list = reactive<List[]>([
+      {
+        name: 'peter',
+        age: 18
+      },{
+        name: 'tom',
+        age: 20
+      },
+      {
+        name: 'jerry',
+        age: 30
+      }
+    ])
+    export default ()=>{
+      return (
+          <div>
+            <div>{!flag.value ? <div>显示</div> : <div>隐藏</div>}</div>
+            <hr />
+            <div>
+            {
+              list.map(item=>{
+                return <div>{item.name}-{item.age}</div>
+              })
+            }
+            </div>
+          </div>
+          )
+    }
+    ```
+
+  * 注意点：for循环的map需要return
+
+  3. props和emit的用法
+
+    ```typescript
+    interface Props {
+      propsParent?: string
+    }
+    const clickTap = (val: any) => {
+      val.emit('on-click', '点击了',list[0])
+    }
+
+    export default (props: Props,content: any)=>{
+      return (
+          <div>
+            <div>{props.propsParent}</div>
+            <hr />
+            <div onClick={()=>clickTap(content)}>click</div>
+          </div>
+          )
+    }
+    ```
+
+  * 注意点： 事件注意绑定上下文
+
+  4. slots用法
+
+    ```typescript
+    const A = (props, { slots }) => (
+      <>
+        <h1>{ slots.default ? slots.default() : 'foo' }</h1>
+        <h2>{ slots.bar?.() }</h2>
+      </>
+    );
+    const slots = {
+      bar: () => <span>B</span>,
+    };
+    export default (props: Props,content: any)=>{
+      return (
+        <div>
+          <A v-slots={slots}>
+            <div>A</div>
+          </A>
+
+        </div>
+        )
+    }
+    ```
+
+### babel
+
+（待实现）
+实现一个vite插件解析tsx
+
+  ```typescript
+  import type { Plugin } from 'vite'
+  import * as babel from '@babel/core'; //@babel/core核心功能：将源代码转成目标代码。
+  import jsx from '@vue/babel-plugin-jsx'; //Vue给babel写的插件支持tsx v-model等
+  export default function (): Plugin {
+      return {
+          name: "vite-plugin-tsx",
+          config (config) {
+            return {
+                esbuild:{
+                  include:/\.ts$/
+                }
+            }
+          },
+          async transform(code, id) {
+              if (/.tsx$/.test(id)) {
+                  //@ts-ignore
+                  const ts = await import('@babel/plugin-transform-typescript').then(r=>r.default)
+                  const res = babel.transformSync(code,{
+                      plugins:[jsx,[ts, { isTSX: true, allowExtensions: true }]], //添加babel插件
+                      ast:true, // ast: 抽象语法树，源代码语法结构的一种抽象表示。babel内部就是通过操纵ast做到语法转换。
+                      babelrc:false, //.babelrc.json
+                      configFile:false //默认搜索默认babel.config.json文件
+                  })
+                  return res?.code //code: 编译后的代码
+              }
+            
+              return code
+          }
+      }
+  }
+  ```
 
 ### 全局变量
 
@@ -342,7 +569,7 @@ app.config.globalProperties.$http = () => {}
 
 #### 全局指令
 
-__app.directive()__
+**app.directive()**
 有两个参数：
     *name: 指令名
     * definition
