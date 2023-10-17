@@ -290,7 +290,7 @@ type List = {
   [key: ParamsKey]: Array<Function>
 }
 
-class eventBus implements BusClasss {
+class eventBus implements BusClass {
   list:List,
   constructor(){
     this.list = {}
@@ -320,6 +320,7 @@ class eventBus implements BusClasss {
     }
   }
 }
+export default new Bus()
 ```
 
 ### jsx/tsx用法（大致，就是学习，还没深入）
@@ -556,6 +557,25 @@ vue的jsx/tsx写法和react大致一样
 ```javascript
 const app = createApp({})
 app.config.globalProperties.$http = () => {}
+app.config.globalProperties.$env = 'dev'
+// vue3已摈弃过滤器
+app.config.globalProperties.$filters = {
+  format: (str)=>{
+    return `拾柒的${str}`
+  }
+}
+
+// 使用
+<template>
+  <div>{{$env}}</div>
+  <div>{{$filters.format}}</div>
+</template>
+<script setup>
+import {getCurrentInstance} from 'vue'
+const {proxy} = getCurrentInstance()
+console.log(proxy.$env)
+console.log(proxy.$filters.format)
+</script>
 ```
 
 ### 指令
@@ -668,3 +688,78 @@ export default {
 ```
 
 #### 局部指令
+
+在组件中直接自定义指令名称即可
+
+```javascript
+// html
+<A v-move="{ background: value }" ></A>
+// js
+import A from './components/A.vue'
+import { ref, Directive, DirectiveBinding } from 'vue'
+let value = ref<string>('')
+type Dir = {
+  background: string
+}
+const vMove: Directive = (el, binding: DirectiveBinding<Dir>) => {
+  el.style.background = binding.value.background
+}
+
+```
+
+写了两个自定义指令
+
+1. 拖拽自定义指令，在[simple-directive文件中](./simple-vue3/simple-directive.vue)
+2. 图片懒加载指令，在[v-lazy](./simple-vue3/vLazy.vue)
+
+### hooks
+
+主要用来处理复用代码逻辑的一些封装
+Vue3 的 hook函数 相当于 vue2 的 mixin, 不同在与 hooks 是函数
+Vue3 的 hook函数 可以帮助我们提高代码的复用性, 让我们能在不同的组件中都利用 hooks 函数
+
+### 插件
+
+插件是自包含的代码，通常向 Vue 添加全局级功能。你如果是一个对象需要有install方法Vue会帮你自动注入到install 方法 你如果是function 就直接当install 方法去使用
+eg：若 app.use() 对同一个插件多次调用，该插件只会被安装一次
+示例如下
+[use-loading](./simple-vue3/use-loading/index.ts)
+
+### css
+
+1. scoped
+在DOM结构以及css样式上加唯一不重复的标记:data-v-hash的方式，以保证唯一（而这个工作是由过PostCSS转译实现的），达到样式私有化模块化的目的
+2. :deep(选择器/类名),样式穿透
+  `:deep(.con){color: red}`
+3. :global(选择器/类名) 全局样式
+4. :sloted(选择器/类名) 作用于slot里的类名
+5. 动态css
+    单文件组件的 \<style\> 标签可以通过 v-bind 这一 CSS 函数将 CSS 的值关联到动态的组件状态上
+    见示例
+
+    ```javascript
+    <template>
+        <div class="con">
+          今天天气不错
+        </div>
+        <div class="wrapper">今天有大太阳</div>
+    </template>
+    
+    <script lang="ts" setup>
+    import { ref } from 'vue'
+    const colorRed = ref<string>('red')
+    let cssObj = ref({
+      color: 'red'
+    })
+    </script>
+    
+    <style lang="scss" scoped>
+    .con{
+      color:v-bind(colorRed)
+    }
+    .wrapper{
+      color: v-bind('cssObj.color')
+    }
+    
+    </style>
+    ```
