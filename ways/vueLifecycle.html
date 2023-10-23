@@ -5,75 +5,173 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>vue生命周期</title>
-  <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script>
+  <!-- <script src="https://cdn.bootcss.com/vue/2.4.2/vue.js"></script> -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body>
   <div id="app">
-    <!-- <h1>{{message}}</h1> -->
+    <h1>{{message}}</h1>
+    <button @click="handle">update</button>
   </div>
 </body>
-<script>
+<!-- <script>
   var vm = new Vue({
     el: '#app',
-    template:'<h1 style="color:red">{{message}}</h1>',
+    // template:'<h1 style="color:red">{{message}}</h1>',
     // render: function (createElement, context) {
     //     return createElement('h1',`${this.message}1111`)
     // },
-    data: {
-      message: 'Vue'
+    data: ()=>{
+      return {
+        message: 'Vue'
+      }
     },
     beforeCreate: function() {
       console.group('------beforeCreate创建前状态------');
-      console.log(this.$el); 
-      console.log(this.$data); 
-      console.log(this.message) 
+      console.log(this.$el);  // undefined
+      console.log(this.$data);  // undefined
+      console.log(this.message)  // undefined
     },
     created: function() {
       console.group('------created创建完毕状态------');
-      console.log(this.$el); 
-      console.log(this.$data);
-      console.log(this.message); 
+      console.log(this.$el);  // undefined
+      console.log(this.$data); // 已被初始化,已赋值
+      console.log(this.message);  // Vue
     },
     beforeMount: function() {
       console.group('------beforeMount挂载前状态------');
-      console.log(this.$el);
-      console.log(this.$data); 
-      console.log(this.message);  
+      console.log(this.$el); // 已被初始化,但是还没有赋值
+      console.log(this.$data); // 已被初始化,已赋值
+      console.log(this.message);  // Vue
     },
     mounted: function() {
       console.group('------mounted 挂载结束状态------');
-      console.log(this.$el);    
-      console.log(this.$data); 
-      console.log(this.message); 
+      console.log(this.$el);    // 已被初始化,已赋值
+      console.log(this.$data);  // 已被初始化,已赋值
+      console.log(this.message); // Vue
     },
     beforeUpdate: function () {
       console.group('beforeUpdate 更新前状态===============》');
-      console.log(this.$el);  
-      console.log(this.$data); 
-      console.log(this.message); 
+      console.log(this.$el);  // 已被初始化,还是原来的值Vue
+      console.log(this.$data);  // 是aaa
+      console.log(this.message); // aaa
     },
     updated: function () {
       console.group('updated 更新完成状态===============》');
-      console.log(this.$el);
-      console.log(this.$data); 
-      console.log(this.message); 
+      console.log(this.$el); // 已被初始化,已赋值aaa
+      console.log(this.$data); // 已赋值aaa
+      console.log(this.message);  // aaa
     },
     beforeDestroy: function () {
       console.group('beforeDestroy 销毁前状态===============》');
-      console.log(this.$el);    
-      console.log(this.$data); 
-      console.log(this.message); 
+      console.log(this.$el);    // 已被初始化,已赋值aaa
+      console.log(this.$data);  // 已赋值aaa
+      console.log(this.message);  // aaa
     },
     destroyed: function () {
       console.group('destroyed 销毁完成状态===============》');
-      console.log(this.$el);  
-      console.log(this.$data); 
-      console.log(this.message)
+      console.log(this.$el);  // undefined
+      console.log(this.$data); // undefined
+      console.log(this.message) // undefined
     }
   })
-  // vm.$mount('#app');
-  // vm.message='aaa';
-  // vm.$destroy();
-  // vm.message='11111'
+  setTimeout(()=>{
+    vm.message='aaa';
+  },2000)
+  setTimeout(()=>{
+    vm.$destroy();
+  },4000)
+  // vue3已经摒弃beforeUpdate和updated了，放在setup里面，用watchEffect/watch来代替组件的更新
+</script> -->
+<script>
+  const { createApp, ref, getCurrentInstance,onMounted,onBeforeMount } = Vue
+
+  createApp({
+    data: ()=>{
+      return {
+        message: 'Vue'
+      }
+    },
+    methods: {
+      handle(){
+        this.message='Hello vue32222!'
+      }
+    },
+    // setup() {
+    //   const message = ref('Hello vue!')
+    //   // const {proxy} = getCurrentInstance()
+    //   // onBeforeMount(()=>{
+    //   //   console.log('onBeforeMount')
+    //   //   console.group('------onBeforeMount------');
+    //   //   console.log(proxy.$el);  // undefined
+    //   //   console.log(proxy);  // undefined
+    //   //   console.log(proxy.message)  // undefined
+    //   // })
+    //   // onMounted(()=>{
+    //   //   console.group('------onMounted------');
+    //   //   console.log(proxy.$el);  // undefined
+    //   //   console.log(proxy);  // undefined
+    //   //   console.log(proxy.message)  // undefined
+    //   // })
+    //   const handle=()=>{
+    //     message.value='Hello vue32222!'
+    //   }
+    //   return {
+    //     message,
+    //     handle
+    //   }
+    // },
+    beforeCreate: function() {
+      console.group('------beforeCreate创建前状态------');
+      console.log(this.$el);  // null
+      console.log(this);  // VueInstance
+      console.log(this.message)  // undefined
+    },
+    created: function() {
+      console.group('------created创建完毕状态------');
+      console.log(this.$el);  // null
+      console.log(this); // VueInstance
+      console.log(this.message);  // Vue
+    },
+    beforeMount: function() {
+      console.group('------beforeMount挂载前状态------');
+      console.log(this.$el); // null
+      console.log(this);  // VueInstance
+      console.log(this.message);  // Vue
+    },
+    mounted: function() {
+      console.group('------mounted 挂载结束状态------');
+      console.log(this.$el);    // dom树
+      console.log(this); // VueInstance
+      console.log(this.message); // Vue
+    },
+    beforeUpdate: function () {
+      console.group('beforeUpdate 更新前状态===============》');
+      console.log(this.$el);  // 已被初始化,还是原来的值Vue
+      console.log(this);  // VueInstance
+      console.log(this.message); // aaa
+    },
+    updated: function () {
+      console.group('updated 更新完成状态===============》');
+      console.log(this.$el); // 已被初始化,已赋值aaa
+      console.log(this); // VueInstance
+      console.log(this.message);  // aaa
+    },
+    beforeDestroy: function () {
+      console.group('beforeDestroy 销毁前状态===============》');
+      console.log(this.$el);    // 已被初始化,已赋值aaa
+      console.log(this);  // VueInstance
+      console.log(this.message);  // aaa
+    },
+    destroyed: function () {
+      console.group('destroyed 销毁完成状态===============》');
+      console.log(this.$el);  // undefined
+      console.log(this); // VueInstance
+      console.log(this.message) // undefined
+    }
+  }).mount('#app')
+  // vue3和vue2的生命周期没有任何变化，只是vue3的生命周期函数的this指向的是VueInstance，而vue2的生命周期函数的this指向的是VueComponent
+  // setup的写法，本身是个语法糖，所以在setup里少了beforeCreate和created，多了beforeMount和mounted
+  // 听chatGpt说，vue3取消了beforeUpdate和updated，放在setup里面，用watchEffect/watch来代替组件的更新,这段话保持怀疑，因为我在实例中看到了beforeUpdate和updated
 </script>
 </html>
