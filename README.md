@@ -34,6 +34,7 @@
 * [vue-router切换路由时同一组件不更新问题](./ways/vue-router-key.md)
 * [npm与yarn，pnpm的区别](./ways/npm%26yarn%26pnpm.md)
 * [老项目添加eslint和prettier以及错误处理](./ways/oldprojectaddeslint%2Bprettier.md)
+* [网格布局grid笔记](./ways/grid/index.md)
 
 #### ES6系列
 
