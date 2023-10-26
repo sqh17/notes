@@ -1,0 +1,78 @@
+<html>
+
+<head>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    .con {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 10px;
+    }
+
+    .item {
+      padding: 10px;
+      border: 1px solid;
+    }
+    /* .item:first-child{
+      grid-column-start: 1;
+      grid-column-end: 3;
+    } */
+    /* .item:first-child{
+      grid-column-end: 4;
+    } */
+    /* .item:nth-child(2){
+      grid-column-start: 1;
+      grid-column-end: 4;
+    } */
+    /* .item:first-child{
+      grid-column-start: 5;
+    } */
+    /* .item:first-child{
+      grid-column-start: 1;
+      grid-column-end: 3;
+    } */
+    /* .item:nth-child(3){
+      grid-column-start: 2;
+      grid-column-end: 4;
+    } */
+    .item:nth-child(5){
+      grid-column-start: 3;
+      grid-column-end: 5;
+    }
+    /* .item:first-child{
+      grid-column: 1 / span 3;
+    } */
+    /* .item:nth-child(3){
+      grid-area: 2 / 2 / 3 /4
+    } */
+
+    /* .item:nth-child(3){
+      grid-area: 2 / 2 / span 3 / 4
+    } */
+  </style>
+</head>
+
+<body>
+  <div class="con">
+    <div class="item">1</div>
+    <div class="item">2</div>
+    <div class="item">3</div>
+    <div class="item">4</div>
+    <div class="item">5</div>
+    <div class="item">6</div>
+    <div class="item">7</div>
+    <div class="item">6</div>
+    <div class="item">7</div>
+    <div class="item">6</div>
+    <div class="item">7</div>
+    <div class="item">6</div>
+    <div class="item">7</div>
+    <div class="item">6</div>
+    <div class="item">7</div>
+  </div>
+</body>
+
+</html>

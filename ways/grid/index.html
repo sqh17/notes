@@ -1,0 +1,199 @@
+<html>
+
+<head>
+  <style>
+    *{
+      box-sizing: border-box;
+    }
+    .grid-container {
+      display: grid;
+      /* grid-template-columns: 100px 200px 300px 400px; */
+      /* grid-template-columns: auto auto auto auto; */
+      /* grid-template-columns: 1fr 4fr 1fr 1fr; */
+      /* grid-template-columns: 20% 30% 40% 10%; */
+      /* grid-template-columns: 100px 20% 200px auto; */
+      /* grid-template-columns: 100px 2fr 200px 1fr; */
+      /* grid-template-columns: 1fr; */
+      /* grid-template-columns: auto; */
+      /* grid-template-columns: auto 1fr; */
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto;
+      /* grid-gap: 10px; */
+    }
+
+    .inline-grid-container {
+      display: inline-grid;
+      /* grid-template-columns: 100px 200px 300px 400px; */
+      /* grid-template-columns: auto auto auto auto; */
+      /* grid-template-columns: 1fr 4fr 1fr 1fr; */
+      /* grid-template-columns: 20% 30% 40% 10%; */
+      /* grid-template-columns: 100px 20% 200px auto; */
+      /* grid-template-columns: 100px 2fr 200px 1fr; */
+      /* grid-template-columns: 1fr; */
+      /* grid-template-columns: auto; */
+      /* grid-template-columns: auto 1fr; */
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto;
+      /* grid-gap: 10px; */
+    }
+    .grid-container1{
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      /* 按照固定高度分配（px,rem,em,pt） */
+      /* grid-template-rows: 100px 200px 300px 400px;  */
+      /* 将根据内容的高度自动调整。这意味着网格项将根据其内部的内容来决定高度 */
+      /* grid-template-rows: auto auto auto auto; */
+      /* 根据内容高度 */
+      /* grid-template-rows: 1fr 2fr 1fr 1fr; */
+      /* 相对于父元素的高度 */
+      /* grid-template-rows: 20% 30% 40% 30%; */
+      /* 第一个列高度为 100px，第二个列高度为父元素高度的 20%，第三个列高度为 200px，第四个列将根据内容自动调整  */
+      /* grid-template-rows: 100px 20% 200px auto; */
+      /* 第一列高度为100px,第二列为剩余高度的2/3，第三列为固定高度200px；第四列为剩余高度的1/3 */
+      grid-template-rows: 100px 2fr 200px 1fr;
+    }
+    .inline-grid-container1{
+      display: inline-grid;
+      grid-template-columns: 1fr 2fr;
+      /* 按照固定高度分配（px,rem,em,pt） */
+      /* grid-template-rows: 100px 200px 300px 400px;  */
+      /* 将根据内容的高度自动调整。这意味着网格项将根据其内部的内容来决定高度*/
+      /* grid-template-rows: auto auto auto auto; */
+      /* 根据内容高度 */
+      /* grid-template-rows: 1fr 2fr 1fr 1fr; */
+      /* 相对于父元素的高度 */
+      /* grid-template-rows: 20% 30% 40% 30%; */
+      /* 第一个列高度为 100px，第二个列高度为父元素高度的 20%，第三个列高度为 200px，第四个列将根据内容自动调整  */
+      /* grid-template-rows: 100px 20% 200px auto; */
+      /* 第一列高度为100px,第二列为剩余高度的2/3，第三列为固定高度200px；第四列为剩余高度的1/3 */
+      grid-template-rows: 100px 2fr 200px 1fr;
+    }
+    .grid-container2,.inline-grid-container2{
+      display: grid;
+      /* grid-template-columns: 1fr 2fr 1fr; */
+      /* grid-template-columns: 100px 200px 200px; */
+      grid-template-columns: 20% 20% 20%;
+      /* grid-template-rows: auto; */
+      /* justify-content: end; */
+      /* justify-content: start; */
+      /* justify-content: center; */
+      justify-content: space-around;
+      /* justify-content: space-between; */
+      /* justify-content: space-evenly; */
+    }
+    .inline-grid-container2{
+      display: inline-grid;
+    }
+    .grid-container3,.inline-grid-container3{
+      display: grid;
+      height: 800px;
+      grid-template-columns: 20%;
+      grid-template-rows: 100px 100px 100px;
+      /* align-content: end; */
+      /* align-content: center; */
+      /* algin-content: space-between; */
+      /* align-content: space-around; */
+      /* align-content: space-evenly; */
+      align-content: stretch;
+    }
+    .inline-grid-container3{
+      display: inline-grid;
+    }
+    .item{
+      border: 1px solid;
+      width: 100%;
+      padding: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- display: grid -->
+  <div style="color: green">display:grid</div>
+  <!-- <div class="grid-container">
+    <div class="item">
+      <span>111</span>
+      <span>222222222222222222222222</span>
+    </div>
+    <div class="item">Item 2</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 4</div>
+  </div> -->
+  <!-- <div class="grid-container1">
+    <div class="item">
+      <span>111</span>
+      <span>222222222222222222222222</span>
+    </div>
+    <div class="item">Item 2</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 4</div>
+    <div class="item">Item 2</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 4</div>
+  </div> -->
+  <!-- <div class="grid-container2">
+    <div class="item">
+      <span>111</span>
+      <span>222222222222222222222222</span>
+    </div>
+    <div class="item">Item 2</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 3</div>
+  </div> -->
+  <div class="grid-container3">
+    <div class="item">
+      <span>111</span>
+      <span>222222222222222222222222</span>
+    </div>
+    <div class="item">Item 2</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 3</div>
+  </div>
+  <br>
+  <!-- display: inline-grid -->
+  <div style="color: green">display:inline-grid</div>
+  <!-- <div class="inline-grid-container">
+    <div class="item">
+      <span>111</span>
+      <span>222222222222222222222222</span>
+    </div>
+    <div class="item">Item 2</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 4</div>
+  </div> -->
+  <!-- <div class="inline-grid-container1">
+    <div class="item">
+      <span>111</span>
+      <span>222222222222222222222222</span>
+    </div>
+    <div class="item">Item 2</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 4</div>
+    <div class="item">Item 2</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 2</div> -->
+    <!-- <div class="inline-grid-container2">
+      <div class="item">
+        <span>111</span>
+        <span>222222222222222222222222</span>
+      </div>
+      <div class="item">Item 2</div>
+      <div class="item">Item 3</div>
+      <div class="item">Item 3</div>
+  </div> -->
+  <div class="inline-grid-container3">
+    <div class="item">
+      <span>111</span>
+      <span>222222222222222222222222</span>
+    </div>
+    <div class="item">Item 2</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 3</div>
+    <div class="item">Item 3</div>
+</div>
+</body>
+
+</html>
