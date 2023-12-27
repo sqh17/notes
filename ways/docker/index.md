@@ -682,7 +682,7 @@ docker run -d -p 3344:80 --name nginx02 -v juming-nginx:/etc/nginx:rw nginx
 FROM        # 基础镜像，一切从这里开始构建
 MAINTAINER    # 镜像是谁写的：姓名+邮箱
 RUN            # 镜像构建的时候需要运行的命令
-ADD            # 步骤：tomcat镜像，这个tomcat压缩包！添加内容
+ADD            # 类似于COPY，比COPY功能更多，可以从网络上下载文件，解压等
 WORKDIR        # 镜像的工作目录
 VOLUME        # 挂载的目录
 EXPOSE        # 暴露端口配置
@@ -774,4 +774,135 @@ docker inspect {容器的名称或者 id } | grep Id # 得到一个id
 vim /var/lib/docker/containers/{hash_of_the_container}/hostconfig.json # hash_of_the_container就是id
 # 修改相应的端口号
 docker start {容器的名称或者 id }
+```
+
+#### 网络
+
+```shell
+docker network ls # 查看网络
+NETWORK ID     NAME      DRIVER    SCOPE
+8d91de00d6f8   bridge    bridge    local
+e6ed8a57f9b4   host      host      local
+96677c951146   mynet     bridge    local
+356328a0762b   none      null      local
+```
+
+```shell
+[root@VM-24-4-centos ~]# docker network create appnet
+a48b55dba7059bbe2dba214855e4d1edc38fd7e207f8b3507ae02af72278f05d
+[root@VM-24-4-centos ~]# docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+a48b55dba705   appnet    bridge    local
+8d91de00d6f8   bridge    bridge    local
+e6ed8a57f9b4   host      host      local
+96677c951146   mynet     bridge    local
+356328a0762b   none      null      local
+```
+
+```shell
+[root@VM-24-4-centos ~]# docker network inspect mynet  # 查看网络详情
+[
+    {
+        "Name": "mynet",
+        "Id": "96677c951146632556187717b50b1d7ed21dbfab49ba72b8f9d38ce8c93f7521",
+        "Created": "2023-12-25T16:28:26.076059189+08:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": { # 对应的链接了哪些容器
+            "05cdfb8b4dea4ba4c583f09302a616ed09dda863a0be593ef16dbae9775d700a": {
+                "Name": "end",
+                "EndpointID": "4ffa7be538c0c74e42783ac43208f2034785706dcd318598f2a40b41f0ddc919",
+                "MacAddress": "02:42:ac:12:00:03",
+                "IPv4Address": "172.18.0.3/16",
+                "IPv6Address": ""
+            },
+            "6410d5ace2ba373a84e127560e9667bdb72e511c5e1c8d6edfd92e53e152b685": {
+                "Name": "mongodb",
+                "EndpointID": "8b2928a2ab44675469c7f10e037b9cca27361f8411b8c3dd235a251223009656",
+                "MacAddress": "02:42:ac:12:00:04",
+                "IPv4Address": "172.18.0.4/16",
+                "IPv6Address": ""
+            },
+            "e0eac24606040262eb671d0348dee93e23d429b4a43b5f8265812d19fac1d1b7": {
+                "Name": "admin",
+                "EndpointID": "6255b3c68ccba8087b7aafe422d7d6eaf585375c7d0c0f11ea092a93a26ba28f",
+                "MacAddress": "02:42:ac:12:00:02",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+```
+
+```shell
+docker network connect appnet 05cd # 将容器连接到网络,05cd是容器id的前几位
+
+```
+
+#### docker-compose
+
+##### docker-compose.yml
+
+```yml
+version: "3.8" # 代表使用docker-compose的版本号
+# docker-compose的版本号取决于docker engine的版本
+services: 
+  node:
+    container_name: node01 # 代表容器的名称，类似于docker run --name node01
+    images: node # 代表使用哪个镜像，类似于docker run 镜像名称
+    ports:  # 代表宿主机和容器端口的映射，类似于docker run -p 8080:8080
+      - "8080:8080"
+  
+  mysql:
+    images: mysql:5.6 
+    ports:  
+      - "3306:3306"
+    environment: # 代表给当前容器启动制定环境变量，类似于 docker run -e MYSQL_ROOT_PASSWORD=root
+      - "MYSQL_ROOT_PASSWORD=root"
+    volumes: # 代表给宿主机和当前容器制定数据卷 类似于docker run -v /app/:/app
+    # 注意docker-compose使用绝对路径要求先创建后使用
+      - /root/mysqldata:/var/lib/mysql # 一种方式，绝对路径
+      - mysqldata:/var/lib/mysql # 一种方式，别名
+    networks: # 代表使用哪个网络
+      - mynet
+  tomcat:
+    build: 
+      context: ./
+      dockerfile: Dockerfile # 代表使用当前目录下的Dockerfile文件构建镜像
+    container_name: tomcat01
+    ports: 
+      - "8081:8080"
+    env_file: # 代表使用当前目录下的.env文件中的环境变量
+      - .env
+    networks: # 代表使用哪个网络
+      - mynet
+    volumes: # 代表给宿主机和当前容器制定数据卷
+      - /root/tomcatlogs:/usr/local/tomcat/logs
+      - /root/tomcatwebapps:/usr/local/tomcat/webapps
+     
+volumes:
+  mysqldata: # 声明数据卷别名
+networks:
+  mynet:
 ```

@@ -21,7 +21,7 @@ keyword：隔离，独立
 #### docker能做什么
 
 1. 更快、更一致的交付你的应用程序
-  使用 Docker 后，开发者能够在本地容器中得到一套标准的应用或服务的运行环境，由此可以简化开发的生命周期 ( 减少在不同环境间进行适配、调整所造成的额外消耗 )。对于整个应用迭代来说，加入 Docker 的工作流程将更加适合持续集成 ( Continuous Integration ) 和持续交付 ( Continuous Delivery )。
+    使用 Docker 后，开发者能够在本地容器中得到一套标准的应用或服务的运行环境，由此可以简化开发的生命周期 ( 减少在不同环境间进行适配、调整所造成的额外消耗 )。对于整个应用迭代来说，加入 Docker 的工作流程将更加适合持续集成 ( Continuous Integration ) 和持续交付 ( Continuous Delivery )。
     举个具体的例子：
     * 开发者能够使用 Docker 在本地编写代码并通过容器与其他同事共享他们的工作。
     * 他们能够使用 Docker 将编写好的程序推送至测试环境进行自动化测试或是人工测试。
@@ -45,6 +45,12 @@ Docker 镜像其实是由基于 UnionFS 文件系统的一组镜像层依次挂�
 4. 数据卷（Volume）
 Union File System 技术
 
+### docker安装
+
+在lunix上安装docker，并没有安装docker-compose，在window，macos上安装docker时会自动安装docker-compose
+
+docker安装步骤具体的看这个文件[实操文件](./index.md)
+
 ### 容器创建和启动
 
 * Created：容器已经被创建，容器所需的相关资源已经准备就绪，但容器中的程序还未处于运行状态。
@@ -57,6 +63,71 @@ Union File System 技术
 -e的作用是指定容器内的环境变量。
 mysql的镜像中是有一个初始化脚本的，这个脚本会读取这个变量初始化root的密码。
 dockerfile中使用ENV指令指定环境变量
+
+```shell
+docker run -d -e MYSQL_ROOT_PASSWORD=123456 mysql:5.7 # 指定mysql的root密码
+```
+
+```shell
+docker start -i -a 容器id # 进入容器
+```
+
+```shell
+docker stop 容器id # 停止容器
+```
+
+```shell
+docker rm -f 容器id # 删除容器
+```
+
+```shell
+docker ps -a # 查看所有容器
+```
+
+```shell
+docker ps # 查看正在运行的容器
+```
+
+```shell
+docker images # 查看所有镜像
+```
+
+```shell
+docker rmi 镜像id # 删除镜像
+```
+
+```shell
+docker run -it 镜像id # 进入容器
+```
+
+```shell
+docker restart 容器id # 重启容器
+```
+
+```shell
+docker logs 容器id # 查看容器日志
+```
+
+```shell
+docker exec -it 容器id /bin/bash # 进入容器
+```
+
+```shell
+docker cp 容器id:容器内路径 宿主机路径 # 容器内拷贝到宿主机
+```
+
+```shell
+docker cp 宿主机路径 容器id:容器内路径 # 宿主机拷贝到容器内
+```
+
+```shell
+docker commit 容器id 镜像名:版本 # 提交容器为镜像
+```
+
+eg：当启动容器后发现容器意外退出，就需要排查一下容器的问题
+
+运行了一个容器，但是docker ps却没有，docker ps -a显示的容器是exit状态，这是因为 __docker容器使用后台运行，就必须要有要一个前台进程，docker发现没有应用，就会自动停止__
+比如：nginx，容器启动后，发现自己没有提供服务，就会立刻停止，就是没有程序了
 
 ### 镜像
 
@@ -98,6 +169,12 @@ Docker数据卷实质上是一个可供容器使用的特殊目录（或者称�
 __可在容器内部或者宿主机本地修改数据卷内的数据，且修改会立马生效，这也提高了Docker数据管理的效率__
 __数据卷可以在容器之间共用和重用，这能够提高容器间数据传递的效率__
 __对数据卷的更新不会影响镜像，实现了应用和数据的解耦，既提高了容器的稳定性，也保障了数据的安全性__
+
+例子
+
+```shell
+docker run -it -v /apps:/apps ubuntu:latest
+```
 
 #### 挂载方式
 
@@ -147,7 +224,7 @@ Docker容器：容器就是镜像运行起来提供服务的。
   ```shell
     COPY [--chown=<user>:<group>] <源路径>... <目标路径>
     COPY [--chown=<user>:<group>] ["<源路径1>",... "<目标路径>"]
-
+  
   ```
 
   ```shell
@@ -171,7 +248,7 @@ ADD 指令和 COPY 的格式和性质基本一致。但是在 COPY 基础上增�
 因此在 COPY 和 ADD 指令中选择的时候，可以遵循这样的原则，所有的文件复制均使用 COPY 指令，仅在需要自动解压缩的场合使用 ADD
 
 * CMD  指定这个容器启动的时候要运行的命令，只有最后一个会生效，可被替代
-在启动容器的时候，需要指定所运行的程序及参数。CMD 指令就是用于指定默认的容器主进程的启动命令的
+  在启动容器的时候，需要指定所运行的程序及参数。CMD 指令就是用于指定默认的容器主进程的启动命令的
   1. shell 格式：CMD <命令>
   2. exec 格式：CMD ["可执行文件", "参数1", "参数2"...]
   3. 参数列表格式：CMD ["参数1", "参数2"...]。在指定了 ENTRYPOINT 指令后，用 CMD 指定具体的参数
@@ -196,6 +273,28 @@ WORKDIR $MYPATH # 这里就是/usr/local
 ```
 
 ![dockerfile命令](../../images/dockerfile.jpg)
+
+例子
+
+```shell
+FROM node:16.15.0 # 基础镜像
+
+MAINTAINER 17<852104785@qq.com> # 镜像是谁写的
+COPY ./ /app # 将当前目录下的所有文件拷贝到/app目录下
+WORKDIR /app # 指定接下来的工作路径为/app
+RUN npm install # 在/app目录下，运行npm install命令安装依赖。注意：安装后所有的依赖都将打包进入镜像
+RUN npm run build # 在/app目录下，运行npm run build命令打包代码。注意：打包后的代码将打包进入镜像
+FROM nginx # 基础镜像
+
+RUN mkdir /app # 在nginx镜像中创建目录/app
+
+COPY --from=0 /app/dist /app # 将node镜像中/app/dist目录下的所有文件拷贝到nginx镜像的/app目录下
+
+COPY nginx.conf /etc/nginx/nginx.conf  # 将当前目录下的nginx.conf文件拷贝到nginx镜像的/etc/nginx/nginx.conf
+
+EXPOSE 80 # 将容器80端口暴露出来，允许外部连接这个端口
+
+```
 
 ### 网络
 
@@ -233,7 +332,7 @@ docker network ls
 docker network create -d bridge individual
 ```
 
-通过 -d 选项我们可以为新的网络指定驱动的类型，其值可以是刚才我们所提及的 bridge、host、none
+通过 -d 选项我们可以为新的网络指定驱动的类型，其值可以是刚才我们所提及的 bridge、host、none，是默认bridge类型
 
 * 暴露端口
 --expose
@@ -244,67 +343,233 @@ sudo docker run -d --name mysql -e MYSQL_RANDOM_ROOT_PASSWORD=yes --expose 13306
 
 #### 容器互联
 
---link
+##### --link
 
-```
+这个遗弃了，用network代替了，就是自定义网络
+
+```shell
 sudo docker run -d --name webapp --link mysql webapp:latest
 ```
 
 别名链接
 
-```
+```shell
 sudo docker run -d --name webapp --link mysql:database webapp:latest
 ```
 
 --link \<name>:\<alias> 的形式，连接到 MySQL 容器，并设置它的别名为 database
 
--------上述我没怎么搞懂，回头再搞一次--------
-
-* 另几种方式
-
- 1. 在容器启动时，启动命令中加入links指定链接的容器:(对应下面的端口映射)
-
- ```
+```shell
  docker run -itd --name nginx-web02 --link nginx-web:nginx01 -p 81:81 sunmmi/nginx nginx
- ```
-
- run容器nginx-web02时，link容器nginx-web,其中nginx-web：nginx01前面是链接哪个容器名，后面是对这个容器别名.
- 2. 也是在容器启动时，启动命令中加入network指定局域网络
-  创建一个新的 Docker 网络
-
-  ```
-  docker network create -d bridge my-net
-  ```
-
-  运行一个容器并连接到新建的 my-net 网络
-
-  ```
-  docker run -it --rm --name busybox1 --network my-net busybox sh
-  ```
-
-  打开新的终端，再运行一个容器并加入到 my-net 网络
-
-  ```
-  docker run -it --rm --name busybox2 --network my-net busybox sh
-  ```
-
-  过 ping 来证明 busybox1 容器和 busybox2 容器建立了互联关系
-
-  ```
-  ping busybox1
-  ```
-
-  ```
-  ping busybox2
-  ```
-
-#### 端口映射
-
-通过 Docker 端口映射功能，我们可以把容器的端口映射到宿主操作系统的端口上，当我们从外部访问宿主操作系统的端口时，数据请求就会自动发送给与之关联的容器端口。
-要映射端口，我们可以在创建容器时使用 -p 或者是 --publish 选项。
-
-```
-sudo docker run -d --name nginx -p 80:80 -p 443:443 nginx:1.12
 ```
 
-使用端口映射选项的格式是 -p \<ip>:\<host-port>:\<container-port>，其中 ip 是宿主操作系统的监听 ip，可以用来控制监听的网卡，默认为 0.0.0.0，也就是监听所有网卡。host-port 和 container-port 分别表示映射到宿主操作系统的端口和容器的端口，这两者是可以不一样的，我们可以将容器的 80 端口映射到宿主操作系统的 8080 端口，传入 -p 8080:80 即可。
+run容器nginx-web02时，link容器nginx-web,其中nginx-web：nginx01前面是链接哪个容器名，后面是对这个容器别名.
+-p 81:81是将容器的81端口映射到宿主机的81端口，sunmmi/nginx是容器的镜像名，nginx是容器的启动命令
+
+##### 自定义网络
+
+也是在容器启动时，启动命令中加入network指定局域网络
+
+* 创建一个新的 Docker 网络
+
+```shell
+docker network create -d bridge my-net
+```
+
+* 运行一个容器并连接到新建的 my-net 网络
+
+```shell
+docker run -it --rm --name busybox1 --network my-net busybox sh
+```
+
+* 打开新的终端，再运行一个容器并加入到 my-net 网络
+
+```shell
+docker run -it --rm --name busybox2 --network my-net busybox sh
+```
+
+* 通过 ping 来证明 busybox1 容器和 busybox2 容器建立了互联关系
+
+```shell
+ping busybox1
+```
+
+```shell
+ping busybox2
+```
+
+##### 查看网络信息
+
+通过该命令可以查阅处于 my-net 网络中的容器信息，以及连了哪些容器
+
+```shell
+docker network inspect my-net
+```
+
+##### 将容器连接到网络
+
+```shell
+docker network connect my-net busybox3
+```
+
+通过后续的方式，将 busybox3 容器连接到 my-net 网络中
+
+### docker compose
+
+#### 定义
+
+compose项目是docker官方的开源项目，负责实现对docker容器集群的快速编排。通过一个简单的yaml文件来配置应用的服务，然后使用一个命令即可创建并启动所有配置的服务。compose目前分为两个独立的工具，一个是docker-compose用于本地单机的容器编排，另一个是docker swarm用于swarm集群的编排。
+大白话：站在项目角度将一组相关联的容器整合到一块，对这组容器进行按照指定顺序运行
+
+通过一个单独的 docker-compose.yml 模板文件（YAML 格式）来定义一组相关联的应用容器为一个项目（project）
+
+Compose 中有两个重要的概念：
+
+* 服务 (service)：一个应用的容器，实际上可以包括若干运行相同镜像的容器实例。
+* 项目 (project)：由一组关联的应用容器组成的一个完整业务单元，在 docker-compose.yml 文件中定义。
+
+Compose 的默认管理对象是项目，通过子命令对项目中的一组容器进行便捷地生命周期管理
+
+#### 安装
+
+##### 离线安装
+
+```shell
+# 1 下载docker-compose
+# https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64
+# 2 放入usr/local/bin
+mv docker-compose-linux-x86_64 docker-compose
+# 3 设置权限
+chmod +x docker-compose
+```
+
+##### 在线安装
+
+```shell
+sudo curl -L https://github.com/docker/compose/releases/download/1.27.4/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+# 国内用户可以使用以下方式加快下载
+sudo curl -L https://download.fastgit.org/docker/compose/releases/download/1.27.4/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+# 设置权限
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+##### 相关命令
+
+docker-compose 命令 项目｜项目中的某个容器 注意，没有特殊说明时，默认是项目，项目里所有的容器
+
+```shell
+docker-compse up -f docker-compose.yml # 对docker-compose.yml下的所有容器启动
+docker-compse up tomcat1 # 对项目中的tomcat服务启动
+```
+
+1. up -d （后台启动） [服务id]
+
+```shell
+docker-compose up #对整个项目操作
+docker-compose up 服务id # 对项目中的对应的服务id操作
+# 该命令十分强大，它将尝试自动完成包括构建镜像，（重新）创建服务，启动服务，并关联服务相关容器的一系列操作
+```
+
+2. down
+
+```shell
+docker-compose down #对整个项目操作
+docker-compose down 服务id # 对项目中的对应的服务id操作
+# 此命令将会停止 up 命令所启动的容器，并移除网络
+```
+
+3. exec
+进入指定的容器,和docker exec差不多
+
+```shell
+docker-compose exec mysql bash
+# 进入容器内部
+```
+
+4. ps
+列出项目中目前的所有容器
+
+```shell
+docker-compose ps 
+docker-compose ps -q #只打印容器的 ID 信息
+```
+
+5. restart
+重启项目中的服务
+
+```shell
+docker-compose restart # 重启所有的
+docker-compose restart mysql # 重启项目中的mysql服务
+docker-compose restart -t, --timeout TIMEOUT # 指定重启前停止容器的超时（默认为 10 秒）
+```
+
+6. rm
+删除所有（停止状态的）服务容器。推荐先执行 docker-compose stop 命令来停止容器
+
+```shell
+docker-compose rm -f  #删除所有的。 -f 强制直接删除
+docker-compose rm mysql #  删除项目中的mysql
+docker rm -v #删除容器所挂载的数据卷
+```
+
+7. logs
+查看服务容器的输出
+
+```shell
+docker-compose logs mysql -f # 实时查看mysql服务的日志
+docker-compose logs # 查看项目的所有的日志
+```
+
+##### docker-compose.yml
+
+```yml
+version: "3.8" # 代表使用docker-compose的版本号
+# docker-compose的版本号取决于docker engine的版本
+services: 
+  node:
+    container_name: node01 # 代表容器的名称，类似于docker run --name node01
+    images: node # 代表使用哪个镜像，类似于docker run 镜像名称
+    ports:  # 代表宿主机和容器端口的映射，类似于docker run -p 8080:8080
+      - "8080:8080"
+  
+  mysql:
+    images: mysql:5.6 
+    ports:  
+      - "3306:3306"
+    environment: # 代表给当前容器启动制定环境变量，类似于 docker run -e MYSQL_ROOT_PASSWORD=root
+      - "MYSQL_ROOT_PASSWORD=root"
+    volumes: # 代表给宿主机和当前容器制定数据卷 类似于docker run -v /app/:/app
+    # 注意docker-compose使用绝对路径要求先创建后使用
+      - /root/mysqldata:/var/lib/mysql # 一种方式，绝对路径
+      - mysqldata:/var/lib/mysql # 一种方式，别名
+
+volumes:
+  mysqldata: # 声明数据卷别名
+
+```
+
+##### docker-compose模版命令
+
+1. build 指令 通过docker-compose在启动容器之前根据当前目录下的Dockerfile构建镜像，然后根据镜像启动容器
+2. command 指令 覆盖容器启动后默认执行的命令
+3. container_name 指令 用来制定docker-compose的容器名称，不推荐使用，直接使用默认名称
+4. depends_on 指令 解决容器依赖、启动先后问题 注意： 当前服务不会等待被依赖的服务完全启动之后才启动
+5. environment 指令 用来给容器指定环境变量，类似于 docker run -e MYSQL_ROOT_PASSWORD=root
+6. env_file 指令 用来指定环境变量文件，类似于 docker run --env-file ./env.list
+7. expose 指令 用来指定构建镜像过程中容器暴露的端口
+
+    和dockerfile中的expose的区别：
+  
+        在 Dockerfile 中，EXPOSE 指令是为了声明在容器运行时会使用的网络端口。这对于在运行或使用容器时提供了关于其网络配置的信息。然而，它并不会实际打开这个端口或使其可以被主机访问。
+
+        相比之下，docker-compose 文件的 expose 和 ports 配置选项是用于定义网络端口的映射规则。expose 选项仅在 Docker 网络中使端口可见，而 ports 选项将容器的端口映射到主机的端口，使得外部可以访问
+
+        如果你在 Dockerfile 和 docker-compose 文件中都使用了 EXPOSE/expose，那么 docker-compose 的设置将会覆盖 Dockerfile 中的设置。这意味着，如果你在 docker-compose 文件中没有指定 expose 或 ports，则即使你在 Dockerfile 中使用了 EXPOSE，该端口也不会被映射到主机或在 Docker 网络中暴露。
+
+        简而言之，如果你希望容器的端口能够被外部访问，你应该在 docker-compose 文件中使用 ports 选项来映射端口。而在 Dockerfile 中使用 EXPOSE 更多的是一种文档化的做法，用于声明该容器应用会使用哪些端口
+
+8. image 指令 用来指定启动容器使用的镜像是谁
+9. networks 指令 用来指定容器使用的网络，类似于 docker run --net=bridge，需要声明
+10. ports 指令 用来指定宿主机和容器暴露的端口，类似于 docker run -p 8080:8080
+11. volume 指令 用来指定宿主机目录和容器中目录的映射 类似于 docker run -v /app/:/app
+12. restart 指令 用来指定docker容器总是运行，类似于docker run --restart=always
