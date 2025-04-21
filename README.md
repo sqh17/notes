@@ -77,3 +77,7 @@
 
 * [docker基础笔记](./ways/docker/docker_learn.md)
 * [docker实操笔记](./ways/docker/index.md)
+
+#### 奇淫思巧（其他知识）
+
+* [nlp之图片识别，两种语言](./ways/intelligentPicture.html)

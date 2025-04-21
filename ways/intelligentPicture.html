@@ -1,0 +1,127 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>nlp之图片识别，两种语言</title>
+  <style>
+    .container {
+      margin: 40px auto;
+      width: max(50vw, 400px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .custom-file-upload {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      gap: 10px;
+      border: 2px solid black;
+      padding: 8px 16px;
+      border-radius: 6px;
+    }
+
+    #file-upload {
+      display: none;
+    }
+
+    #image-container {
+      width: 100%;
+      margin-top: 20px;
+      position: relative;
+    }
+
+    #image-container>img {
+      width: 100%;
+    }
+
+    .bounding-box {
+      position: absolute;
+      box-sizing: border-box;
+    }
+
+    .bounding-box-label {
+      position: absolute;
+      color: white;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 语义化 main就比div更好 页面中都主体内容 -->
+  <!-- css选择器 -->
+  <!-- main.container>label.custom-file-upload>input#file-upload+#image-container+p#status -->
+  <main class="container">
+    <label for="file-upload" class="custom-file-upload">
+      <input type="file" accept="image/*" id="file-upload">
+      上传图片
+    </label>
+    <div id="image-container"></div>
+    <p id="status"></p>
+  </main>
+  <script type="module">
+    // ------通过其他人提供的学习知识------
+    // 开外网
+    //transformers npl 任务
+    import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0";
+    //不允许在本地运行模型，而需要依赖于远程服务器上的模型。这种设置可能是出于安全性、性能或其他管理考虑而进行的
+    env.allowLocalModels = false;
+    const fileUpload = document.getElementById('file-upload');
+    const imageContainer = document.getElementById('image-container');
+    fileUpload.addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      //新建一个FileReader对象, 01 序列
+      //图片比较大
+      const reader = new FileReader();
+      reader.onload = function (e2) {
+        //读完了，加载完成
+        const image = document.createElement('img');//创建一个图片对象
+        //  console.log(e2.target.result);
+        image.src = e2.target.result;
+        imageContainer.appendChild(image);//用于向 DOM（文档对象模型）中的父元素节点添加子元素节点的方法
+        detect(image);//启动AI任务 功能模块化，封装出去
+      }
+      reader.readAsDataURL(file);
+    });
+    const status = document.getElementById('status');
+    //检测图片的AI任务
+    const detect = async (image) => {
+      status.textContent = '分析中...';
+      const detector = await pipeline("object-detection",
+        "Xenova/detr-resnet-50");// model 实例化了detector对象
+      const output = await detector(image.src, {
+        threshold: 0.1,
+        percentage: true
+      });
+      //  console.log(output);
+      output.forEach(renderBox);
+    }
+    function renderBox({ box, label }) {
+      console.log(box, label);
+      const { xmax, xmin, ymax, ymin } = box;
+      const boxElement = document.createElement("div");
+      boxElement.className = 'bounding-box';
+      Object.assign(boxElement.style, {
+        borderColor: '#123123',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        left: 100 * xmin + '%',
+        top: 100 * ymin + '%',
+        width: 100 * (xmax - xmin) + '%',
+        height: 100 * (ymax - ymin) + '%'
+      })
+      const labelElement = document.createElement('span');
+      labelElement.textContent = label;
+      labelElement.className = 'bounding-box-label';
+      labelElement.style.backgroundColor = '#000000';
+
+      boxElement.appendChild(labelElement);
+      imageContainer.appendChild(boxElement);
+    }
+  </script>
+</body>
+
+</html>
