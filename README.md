@@ -86,3 +86,5 @@
 * [nlp之图片识别，两种语言](./ways/othersNotes/intelligentPicture.html)
 * [css3实现流程图](./ways/othersNotes/progerss.md)
 * [A4_printing](./ways/othersNotes/A4_printing.ts)
+* [字符级余弦相似度算法](./ways/othersNotes/cosSameWords.ts)
+* [字符级余弦相似度算法_class](./ways/othersNotes/cosSameWords_class.ts)
